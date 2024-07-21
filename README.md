@@ -36,7 +36,7 @@ Add as a dependency to your project:
 
 
 ```Clojure
-[io.github.paintparty/get-rich "0.1.0"]
+[io.github.paintparty/get-rich "0.1.0-a"]
 ```
 <br>
 
