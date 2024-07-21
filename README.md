@@ -3,7 +3,7 @@
 **Helps you quickly get rich text into your console printing.**  
 
 <a href="https://clojars.org/io.github.paintparty/get-rich">
-<p align="center"><img src="https://img.shields.io/clojars/v/io.github.paintparty/get-rich.svg?color=0969da&style=flat-square&cacheSeconds=3" alt="get-rich on Clojars"></img>
+<p align="left"><img src="https://img.shields.io/clojars/v/io.github.paintparty/get-rich.svg?color=0969da&style=flat-square&cacheSeconds=3" alt="get-rich on Clojars"></img>
 </a>
 
 <br>
