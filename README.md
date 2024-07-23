@@ -2,9 +2,12 @@
 
 **Helps you quickly get rich text into your console printing.**  
 
-<a href="https://clojars.org/io.github.paintparty/get-rich">
-<p align="left"><img src="https://img.shields.io/clojars/v/io.github.paintparty/get-rich.svg?color=0969da&style=flat-square&cacheSeconds=3" alt="get-rich on Clojars"></img>
-</a>
+
+<p align="left">
+  <a href="https://clojars.org/io.github.paintparty/get-rich">
+    <img src="https://img.shields.io/clojars/v/io.github.paintparty/get-rich.svg?color=0969da&style=flat-square&cacheSeconds=3" alt="get-rich on Clojars"></img>
+  </a>
+</p>
 
 <br>
 
@@ -78,12 +81,10 @@ of text decorated with tags for colorization, italics, and boldness:
 
 <br>
 
-In ClojureScript, **`enriched`** returns a js array that needs to
-be printed like this: <br>
+In ClojureScript, **`enriched`** returns a js array that needs to be printed like this: <br>
 `(.apply js/console.log js/console returned-array)`.<br>
 
-To avoid typing all this out, you can use **`get-rich.core/print-enriched`**
-to print the array returned from **`enriched`**:
+To avoid typing all this out, you can use **`get-rich.core/print-enriched`** to print the array returned from **`enriched`**:
 
 ```Clojure
 (print-enriched (enriched [:bold "bold"]
@@ -94,8 +95,7 @@ to print the array returned from **`enriched`**:
 ```
 
 By default, in ClojureScript, **`get-rich.core/print-enriched`** prints with `js/console.log`.
-However, if you would like to print with either `js.console/warn`, or 
-`js/console.error`, you can pass either as a second argument.
+However, if you would like to print with either `js.console/warn`, or `js/console.error`, you can pass either as a second argument.
 
 ```Clojure
 (print-enriched (enriched [:bold "bold"]
@@ -109,8 +109,7 @@ However, if you would like to print with either `js.console/warn`, or
 
 ### Combo styles
 
-You can add multiple decorations with hiccup-style tags. The order doesn't
-matter.
+You can add multiple decorations with hiccup-style tags. The order doesn't matter.
 ```Clojure
 (println (enriched [:bold.italic "bold & italic"]
                    ", "
@@ -187,8 +186,7 @@ You can also pass a map (instead of a hiccup-style tag) to style the text:
 ```
 <br>
 
-Note that all the arguments to **`get-rich.core/enriched`** must satisfy this
-predicate:
+Note that all the arguments to **`get-rich.core/enriched`** must satisfy this predicate:
 ```Clojure
 (every? (fn [x]
           (or (and (vector? x)
@@ -201,8 +199,7 @@ predicate:
         args)
 ```
 
-In other words, every one of the arguments to **`get-rich.core/enriched`** must
- be either:<br>
+In other words, every one of the arguments to **`get-rich.core/enriched`** must be either:<br>
 - A two-element vector, with the first element being a keyword or map.<br>
 - A value which is not a collection.
 
@@ -215,48 +212,38 @@ If you want to print `[1 2 3]` in red, you will need to stringify the vector:
 <br>
 
 ## Printing formatted blocks to the console
-**`get-rich.core/callout`** will print a message "block" to the console with a
-colored bounding border in the inline-start position:
+**`get-rich.core/callout`** will print a message "block" to the console with a colored bounding border in the inline-start position:
 
 <!-- ;; Add success case to these -->
 
 ```Clojure
-(callout
- {:alert-type :info
-  :message    "Example callout, with :alert-type of :info"})
+(callout {:type :info}
+         "Example callout, with :type of :info")
 
-(callout
- {:alert-type :info
-  :label      "My custom label"
-  :message    "Example callout, with :alert-type of :info and custom :label"})
+(callout {:type  :info
+          :label "My custom label"}
+         "Example callout, with :type of :info and custom :label")
 
-(callout
- {:alert-type :warning
-  :message    "Example callout, with :alert-type of :warning"})
+(callout {:type :warning}
+         "Example callout, with :type of :warning")
 
-(callout
- {:alert-type :error
-  :message    "Example callout, with :alert-type of :error"})
+(callout {:type :error}
+         "Example callout, with :type of :error")
 
-(callout
- {:alert-type :positive
-  :label      "SUCCESS!"
-  :message    "Example callout, with :alert-type of :positive, and custom :label"})
+(callout {:type :positive
+          :label      "SUCCESS!"}
+         "Example callout, with :type of :positive, and custom :label")
 
-(callout
- {:alert-type :subtle
-  :message    "Example callout, with :alert-type of :subtle (or :gray)"})
+(callout {:type :subtle}
+         "Example callout, with :type of :subtle (or :gray)")
 
-(callout
- {:alert-type :magenta
-  :message    "Example callout, with :alert-type of :magenta"})
+(callout {:type :magenta}
+         "Example callout, with :type of :magenta")
 
-(callout
- {:alert-type :purple
-  :message    "Example callout, with :alert-type of :purple"})
+(callout {:type :purple}
+         "Example callout, with :type of :purple")
 
-(callout
- {:message    "Example callout, default"})
+(callout "Example callout, default")
 ```
 
 <br>
@@ -272,29 +259,25 @@ The above calls would render the following in your favorite terminal emulator:
 
 ## Templates for errors and warnings
 
-**`get-rich.core/callout`**, paired with **`get-rich.core/point-of-interest`**
-is perfect for creating your own custom error or warning messages:
+**`get-rich.core/callout`**, paired with **`get-rich.core/point-of-interest`** is perfect for creating your own custom error or warning messages:
 
 ```Clojure
-(defn example-custom-callout
-  [{:keys [alert-type label] :as opts}]
-  (callout
-   {:alert-type     alert-type
-    :label          label
-    :message        (-> {:alert-type alert-type
-                         :header     "Your header message goes here."
-                         :body       ["The body of your message goes here."
-                                      "Second line of copy."
-                                      "Another line."]}
-                        (merge opts)
-                        point-of-interest)}))
+(defn example-custom-callout [opts]
+  (let [message (point-of-interest
+                 (merge opts
+                        {:squiggly-color :error
+                         :header         "Your header of your template goes here."
+                         :body           ["The body of your template goes here."
+                                          "Second line of copy."
+                                          "Another line."]}))]
+    (callout opts message)))
 
 (example-custom-callout
- {:file       "example.ns.core"
-  :line       11
-  :column     1
-  :form       '(+ 1 true)
-  :alert-type :error})
+ {:file   "example.ns.core"
+  :line   11
+  :column 1
+  :form   '(+ 1 true)
+  :type   :error})
 ```
 <br>
 
@@ -320,4 +303,4 @@ issue for discussion before starting or issuing a PR.
 
 <!-- ## Alternatives / Prior Art -->
 
-<br>
+<br>          
