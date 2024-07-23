@@ -6,11 +6,12 @@
 (defn example-custom-callout [opts]
   (let [message (point-of-interest
                  (merge opts
-                        {:header "Your header of your template goes here."
-                         :body   ["The body of your template goes here."
-                                  "Second line of copy."
-                                  "Another line."]}))]
-    (callout (assoc opts :message message))))
+                        {:squiggly-color :error
+                         :header         "Your header of your template goes here."
+                         :body           ["The body of your template goes here."
+                                          "Second line of copy."
+                                          "Another line."]}))]
+    (callout opts message)))
 
 #_(example-custom-callout
  {:file       "example.ns.core"
@@ -19,77 +20,86 @@
   :form       '(+ 1 true)
   :type :error})
 
-(println 
- (point-of-interest
-  {:file           "example.ns.core"
-   :line           11
-   :column         1
-   :form           '(+ 1 true)
-   :squiggly-color :error}))
+;; (println 
+;;  (point-of-interest
+;;   {:file           "example.ns.core"
+;;    :line           11
+;;    :column         1
+;;    :form           '(+ 1 true)
+;;    :squiggly-color :error}))
 
-(println)
-(println)
-(println (point-of-interest
-          (merge {:file           "example.ns.core"
-                  :line           11
-                  :column         1
-                  :form           '(+ 1 true)
-                  :squiggly-color :error
-                  :header         "Your header of your template goes here."
-                  :body           ["The body of your template goes here."
-                                   "Second line of copy."
-                                   "Another line."]})))
+;; (println)
+;; (println)
+;; (println (point-of-interest
+;;           (merge {:file           "example.ns.core"
+;;                   :line           11
+;;                   :column         1
+;;                   :form           '(+ 1 true)
+;;                   :squiggly-color :error
+;;                   :header         "Your header of your template goes here."
+;;                   :body           ["The body of your template goes here."
+;;                                    "Second line of copy."
+;;                                    "Another line."]})))
 
-(println)
-(println)
-(println)
-(println (enriched [:bold "bold"] ", " [:italic "italic"] ", or " [:blue "colored"]))
+;; (println)
+;; (println)
+;; (example-custom-callout
+;;  {:type   :error
+;;   :file   "example.ns.core"
+;;   :line   11
+;;   :column 1
+;;   :form   '(+ 1 true)})
 
-(println)
-(println (enriched [:bold.italic "bold & italic"]
-                   ", "
-                   [:italic.blue "italic & colored"]
-                   ", "
-                   [:bold.italic.blue "bold & italic & colored"]))
+;; (println)
+;; (println)
+;; (println)
+;; (println (enriched [:bold "bold"] ", " [:italic "italic"] ", or " [:blue "colored"]))
 
-(println)
-(println (enriched [:bold.red "Red"]
-                   ", "
-                   [:bold.yellow "Yellow"]
-                   ", "
-                   [:bold.green "Green"]
-                   ", "
-                   [:bold.blue "Blue"]
-                   ", "
-                   [:bold.purple "Purple"]
-                   ", "
-                   [:bold.magenta "Magenta"]
-                   ", "
-                   [:bold.gray "Gray"]
-                   ", "
-                   [:bold.black "Black"]
-                   ", "
-                   [:bold.white "White"] ))
+;; (println)
+;; (println (enriched [:bold.italic "bold & italic"]
+;;                    ", "
+;;                    [:italic.blue "italic & colored"]
+;;                    ", "
+;;                    [:bold.italic.blue "bold & italic & colored"]))
 
-(println)
-(println (enriched [:bold.negative "Negative"]
-                   ", "
-                   [:bold.error "Error"]
-                   ", "
-                   [:bold.warning "Warning"]
-                   ", "
-                   [:bold.positive "Positive"]
-                   ", "
-                   [:bold.info "Info"]
-                   ", "
-                   [:bold.subtle "Subtle"]
-                   ", "
-                   [:bold.neutral "Neutral"] ))
+;; (println)
+;; (println (enriched [:bold.red "Red"]
+;;                    ", "
+;;                    [:bold.yellow "Yellow"]
+;;                    ", "
+;;                    [:bold.green "Green"]
+;;                    ", "
+;;                    [:bold.blue "Blue"]
+;;                    ", "
+;;                    [:bold.purple "Purple"]
+;;                    ", "
+;;                    [:bold.magenta "Magenta"]
+;;                    ", "
+;;                    [:bold.gray "Gray"]
+;;                    ", "
+;;                    [:bold.black "Black"]
+;;                    ", "
+;;                    [:bold.white "White"] ))
+
+;; (println)
+;; (println (enriched [:bold.negative "Negative"]
+;;                    ", "
+;;                    [:bold.error "Error"]
+;;                    ", "
+;;                    [:bold.warning "Warning"]
+;;                    ", "
+;;                    [:bold.positive "Positive"]
+;;                    ", "
+;;                    [:bold.info "Info"]
+;;                    ", "
+;;                    [:bold.subtle "Subtle"]
+;;                    ", "
+;;                    [:bold.neutral "Neutral"] ))
 
 
-;; ;; Rich text examples
+;; ;; ;; Rich text examples
 
-;; ;; callout examples
+;; ;; ;; callout examples
 
 
 (callout
@@ -138,12 +148,12 @@
   }
  "Example callout, with :type of :error, and custom spacing")
 
-(example-custom-callout
- {:form-meta   {:file   "example.ns.core"
-                :line   11
-                :column 1}
-  :quoted-form '(+ 1 true)
-  :type  :warning})
+;; (example-custom-callout
+;;  {:form-meta   {:file   "example.ns.core"
+;;                 :line   11
+;;                 :column 1}
+;;   :quoted-form '(+ 1 true)
+;;   :type  :warning})
 
 ;; (example-custom-callout
 ;;  {:form-meta   {:file   "example.ns.core"

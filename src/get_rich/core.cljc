@@ -1,7 +1,6 @@
 (ns get-rich.core
   (:require [clojure.string :as string]
-            [clojure.walk :as walk]
-            #?(:cljs [fireworks.core :refer [? !? ?pp !?pp]])))
+            [clojure.walk :as walk]))
 
 ;; Defs -----------------------------------------------------------------------
 
@@ -336,7 +335,7 @@
       ["\n"
        gutter " ┌─ " file-info "\n"
        gutter " │  \n"
-       line   " │ " [{:font-weight :bold} form] "\n"
+       line   " │ " [{:font-weight :bold} form-as-str] "\n"
        gutter " │ " [{:font-weight :bold :color color} squig]
        "\n"]
       (when body ["\n"])
