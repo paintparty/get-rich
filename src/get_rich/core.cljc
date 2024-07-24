@@ -308,11 +308,18 @@
 ;; Line and point of interest public fns  -------------------------------------
 
 (defn ^:public point-of-interest
-  "A namespace info diagram which identifies a specific sexp.
-   This provides the namespace, column, and line number, and a bolded,
-   potentially truncated, representation of the specific form of
-   interest. This form representation is accented with a squiggly underline."
+  "A namespace info diagram which identifies a specific sexp. This provides the
+   namespace, column, and line number, and a bolded, potentially truncated,
+   representation of the specific form of interest. This form representation is
+   accented with a squiggly underline.
+   
+   The `:line`, `:column`, `:form`, and `:file` options must all be present in
+   order for the namespece info diagram to be rendered. If the `:form` option is
+   supplied, but any of the others are omitted, only the form will be rendered
+   (with a squiggly underline and no stacktrace diagram)."
   [{:keys [line 
+           file
+           column
            form
            header
            body
@@ -327,17 +334,25 @@
         form-as-str  (shortened form 33)
         squig        (squiggly-underline form-as-str)
         header-lines (maybe-wrap header)
-        body-lines   (maybe-wrap body)]
+        body-lines   (maybe-wrap body)
+        bolded-form  [{:font-weight :bold} form-as-str]
+        bolded-squig [{:font-weight :bold :color color} squig]
+        ]
     (apply enriched
      (concat
       header-lines
       (when header ["\n"])
-      ["\n"
-       gutter " ┌─ " file-info "\n"
-       gutter " │  \n"
-       line   " │ " [{:font-weight :bold} form-as-str] "\n"
-       gutter " │ " [{:font-weight :bold :color color} squig]
-       "\n"]
+      (if (and line column file)
+        ["\n"
+         gutter " ┌─ " file-info "\n"
+         gutter " │  \n"
+         line   " │ " bolded-form "\n"
+         gutter " │ " bolded-squig
+         "\n"]
+        ["\n"
+         bolded-form "\n"
+         bolded-squig
+         "\n"])
       (when body ["\n"])
       body-lines))))
 
