@@ -342,17 +342,19 @@
      (concat
       header-lines
       (when header ["\n"])
-      (if (and line column file)
-        ["\n"
-         gutter " ┌─ " file-info "\n"
-         gutter " │  \n"
-         line   " │ " bolded-form "\n"
-         gutter " │ " bolded-squig
-         "\n"]
-        ["\n"
-         bolded-form "\n"
-         bolded-squig
-         "\n"])
+      (cond (and line column file form)
+            ["\n"
+             gutter " ┌─ " file-info "\n"
+             gutter " │  \n"
+             line   " │ " bolded-form "\n"
+             gutter " │ " bolded-squig
+             "\n"]
+            
+            form
+            ["\n"
+             bolded-form "\n"
+             bolded-squig
+             "\n"])
       (when body ["\n"])
       body-lines))))
 
