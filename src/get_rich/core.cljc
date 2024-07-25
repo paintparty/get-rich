@@ -384,6 +384,8 @@
   the bounds of the message body can be controlled the `padding-top`
   and `padding-bottom` options."
   [{:keys [label
+           heavy?
+           wrap?
            margin-top
            margin-bottom
            padding-top
@@ -395,7 +397,10 @@
         margin-top     (default-spacing margin-top 1)
         margin-bottom  (default-spacing margin-bottom 1)
         callout-type   (callout-type opts)
-        color          (or callout-type "neutral")]
+        color          (or callout-type "neutral")
+        heavy?         (true? heavy?)
+        wrap?          (true? wrap?)
+        ]
 
     #?(:cljs
        ;; move to enriched or data
@@ -413,18 +418,46 @@
                              (get alert-type->label
                                   callout-type
                                   nil))
-             border-opts {:font-weight :bold :color color}]
+             border-opts {:font-weight :bold
+                          :color       color}
+             thick-style {:background-color color
+                          :color            :white
+                          :font-weight      :bold}
+             left-border (if heavy? "  " "┃  ")]
          (print
           (str #?(:cljs nil :clj (char-repeat margin-top "\n"))
-               (enriched [border-opts (str "┏" (some->> label (str "━ " )))])
-               (string/replace 
-                (str (char-repeat padding-top "\n") "\n"
-                     (nth message 0 nil))
-                #"\n"
-                (str "\n" (enriched [border-opts "┃  "])))
-               (char-repeat padding-bottom 
-                                 (str "\n" (enriched [border-opts "┃  "])))
-               (str "\n" (enriched [border-opts (str "┗")]))
+               (if heavy?
+                 (str
+                  (enriched [thick-style (if wrap?
+                                           (str "\n    " label)
+                                           (str "  " (if label
+                                                       (str "  " label "  ")
+                                                       " ")))])
+                  (str "\n" (enriched [thick-style "  "]))
+                  (string/replace 
+                   (str (char-repeat padding-top "\n") "\n"
+                        (nth message 0 nil))
+                   #"\n"
+                   (str "\n" (enriched [thick-style "  "] "  ")))
+                  (char-repeat padding-bottom 
+                               (str "\n" (enriched [thick-style left-border])))
+                  (str "\n" (enriched [thick-style "  "]))
+                  (str "\n" (enriched [thick-style "  "]))
+                  (enriched [thick-style (if wrap? "\n" " ")]))
+                 
+                 ;; subtle
+                 (str
+                  (enriched [border-opts (str "┏" (some->> label (str  "━ " )))])
+                  (when-not heavy? 
+                    (string/replace 
+                     (str (char-repeat padding-top "\n") "\n"
+                          (nth message 0 nil))
+                     #"\n"
+                     (str "\n" (enriched [border-opts "┃  "]))))
+                  (char-repeat padding-bottom 
+                               (str "\n" (enriched [border-opts left-border])))
+                  (str "\n" (enriched [border-opts (str "┗")]))))
+
                #?(:cljs nil :clj (char-repeat margin-bottom "\n")) "\n")))))
   nil)
 
