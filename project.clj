@@ -1,4 +1,4 @@
-(defproject io.github.paintparty/get-rich "0.1.0-a"
+(defproject io.github.paintparty/get-rich "0.1.0"
   :description "Rich text console printing for Clojure(Script)"
   :url "https://github.com/paintparty/fireworks"
   :license {:name "MIT"}
