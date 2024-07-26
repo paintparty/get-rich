@@ -39,7 +39,7 @@ Add as a dependency to your project:
 
 
 ```Clojure
-[io.github.paintparty/get-rich "0.1.0-a"]
+[io.github.paintparty/get-rich "0.1.0"]
 ```
 <br>
 
@@ -109,13 +109,13 @@ However, if you would like to print with either `js.console/warn`, or `js/consol
 
 ### Combo styles
 
-You can add multiple decorations with hiccup-style tags. The order doesn't matter.
+You can add multiple decorations with hiccup-style tags (a keyword with dot separators). The order of the things separated by dots doesn't matter.
 ```Clojure
 (println (enriched [:bold.italic "bold & italic"]
                    ", "
                    [:italic.blue "italic & colored"]
                    ", "
-                   [:bold.italic.blue "bold & italic & colored"]))
+                   [:bold.italic.white.blue-bg "bold & italic & colored & colored-bg"]))
 ```
 <p align="center"><img src="resources/combos-light.png" width="750px" /></p>
 <p align="center"><img src="resources/combos-dark.png" width="750px" /></p>
@@ -179,9 +179,10 @@ You can use the following semantic aliases for some colors (shown in bold):
 
 You can also pass a map (instead of a hiccup-style tag) to style the text:
 ```Clojure
-(enriched [{:color       :green
-            :font-style  :italic
-            :font-weight :bold}
+(enriched [{:color            :green
+            :background-color :black
+            :font-style       :italic
+            :font-weight      :bold}
            "Negative"])
 ```
 <br>

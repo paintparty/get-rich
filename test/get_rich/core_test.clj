@@ -3,6 +3,8 @@
             [clojure.string :as string]
             [get-rich.core :refer [enriched callout point-of-interest]]))
 
+(println )
+
 (defn example-custom-callout [opts]
   (let [message (point-of-interest
                  (merge opts
@@ -55,12 +57,15 @@
 ;; (println)
 ;; (println (enriched [:bold "bold"] ", " [:italic "italic"] ", or " [:blue "colored"]))
 
-;; (println)
-;; (println (enriched [:bold.italic "bold & italic"]
-;;                    ", "
-;;                    [:italic.blue "italic & colored"]
-;;                    ", "
-;;                    [:bold.italic.blue "bold & italic & colored"]))
+(println)
+(println)
+(println (enriched [:bold.italic "bold & italic"]
+                   ", "
+                   [:italic.blue "italic & colored"]
+                   ", "
+                   [:bold.italic.white.blue-bg "bold & italic & colored & colored-bg"]))
+(println)
+(println)
 
 ;; (println)
 ;; (println (enriched [:bold.red "Red"]
