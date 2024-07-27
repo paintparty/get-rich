@@ -379,81 +379,92 @@
   the bounds of the message body can be controlled the `padding-top`
   and `padding-bottom` options."
   [{:keys [label
-           heavy?
            wrap?
+           border-weight
            margin-top
            margin-bottom
            padding-top
            padding-bottom]
     :as opts}
    & message]
-  (let [padding-top    (default-spacing padding-top 0)
-        padding-bottom (default-spacing padding-bottom 0)
-        margin-top     (default-spacing margin-top 1)
-        margin-bottom  (default-spacing margin-bottom 1)
-        callout-type   (callout-type opts)
-        color          (or callout-type "neutral")
-        heavy?         (true? heavy?)
-        wrap?          (true? wrap?)
-        ]
+  (if-not (map? opts)
+   (callout
+    {:type          :warning
+    ;; :border-weight :heavy
+     }
+    (point-of-interest
+     {:type   :warning
+      :header "get-rich.core/callout"
+      :form   (cons 'callout (cons opts message))
+      :body   (str "get-rich-core/callout expects a map of options,\n"
+                   "followed by any number of values (usually strings).\n\n"
+                   "Nothing will be printed.")}))
+   (let [padding-top    (default-spacing padding-top 0)
+         padding-bottom (default-spacing padding-bottom 0)
+         margin-top     (default-spacing margin-top 1)
+         margin-bottom  (default-spacing margin-bottom 1)
+         callout-type   (callout-type opts)
+         color          (or callout-type "neutral")
+         heavy?         (contains? {:heavy "heavy"} border-weight)
+         wrap?          (true? wrap?)]
 
-    #?(:cljs
+     #?(:cljs
        ;; move to enriched or data
-       (let [f   (case callout-type 
-                   "warning" (.-warn  js/console)
-                   "error"   (.-error  js/console)
-                   (.-log  js/console))
-             arr (or (some-> message
-                             (nth 0 nil)
-                             (maybe array?))
-                         (into-array message))]
-         (.apply f js/console arr))
-       :clj
-       (let [label       (or label
-                             (get alert-type->label
-                                  callout-type
-                                  nil))
-             border-opts {:font-weight :bold
-                          :color       color}
-             thick-style {:background-color color
-                          :color            :white
-                          :font-weight      :bold}
-             left-border (if heavy? "  " "┃  ")]
-         (print
-          (str #?(:cljs nil :clj (char-repeat margin-top "\n"))
-               (if heavy?
-                 (str
-                  (enriched [thick-style (if wrap?
-                                           (str "\n    " label)
-                                           (str "  " (if label
-                                                       (str "  " label "  ")
-                                                       " ")))])
-                  (str "\n" (enriched [thick-style "  "]))
-                  (string/replace 
-                   (str (char-repeat padding-top "\n") "\n"
-                        (nth message 0 nil))
-                   #"\n"
-                   (str "\n" (enriched [thick-style "  "] "  ")))
-                  (char-repeat padding-bottom 
-                               (str "\n" (enriched [thick-style left-border])))
-                  (str "\n" (enriched [thick-style "  "]))
-                  (str "\n" (enriched [thick-style "  "]))
-                  (enriched [thick-style (if wrap? "\n" " ")]))
-                 
+        (let [f   (case callout-type 
+                    "warning" (.-warn  js/console)
+                    "error"   (.-error  js/console)
+                    (.-log  js/console))
+              arr (or (some-> message
+                              (nth 0 nil)
+                              (maybe array?))
+                      (into-array message))]
+          (.apply f js/console arr))
+        :clj
+        (let [label       (or label
+                              (get alert-type->label
+                                   callout-type
+                                   nil))
+              border-opts {:font-weight :bold
+                           :color       color}
+              thick-style {:background-color color
+                           :color            :white
+                           :font-weight      :bold}
+              left-border (if heavy? "  " "┃  ")]
+          (print
+           (str #?(:cljs nil :clj (char-repeat margin-top "\n"))
+                (if heavy?
+                  (str
+                   (enriched [thick-style (if wrap?
+                                            (str "\n    " label)
+                                            (str "  " (if label
+                                                        (str "  " label "  ")
+                                                        " ")))])
+                   (str "\n" (enriched [thick-style "  "]))
+                   (string/replace 
+                    (str (char-repeat padding-top "\n") "\n"
+                         (nth message 0 nil))
+                    #"\n"
+                    (str "\n" (enriched [thick-style "  "] "  ")))
+                   (char-repeat padding-bottom 
+                                (str "\n" (enriched [thick-style left-border])))
+                   (str "\n" (enriched [thick-style "  "]))
+                   (str "\n" (enriched [thick-style "  "]))
+                   (enriched [thick-style (if wrap? "\n" " ")]))
+                  
                  ;; subtle
-                 (str
-                  (enriched [border-opts (str "┏" (some->> label (str  "━ " )))])
-                  (when-not heavy? 
-                    (string/replace 
-                     (str (char-repeat padding-top "\n") "\n"
-                          (nth message 0 nil))
-                     #"\n"
-                     (str "\n" (enriched [border-opts "┃  "]))))
-                  (char-repeat padding-bottom 
-                               (str "\n" (enriched [border-opts left-border])))
-                  (str "\n" (enriched [border-opts (str "┗")]))))
+                  (str
+                   (enriched [border-opts (str "┏" (some->> label (str  "━ " )))])
+                   (when-not heavy? 
+                     (string/replace 
+                      (str (char-repeat padding-top "\n") "\n"
+                           (nth message 0 nil))
+                      #"\n"
+                      (str "\n" (enriched [border-opts "┃  "]))))
+                   (char-repeat padding-bottom 
+                                (str "\n" (enriched [border-opts left-border])))
+                   (str "\n" (enriched [border-opts (str "┗")]))))
 
-               #?(:cljs nil :clj (char-repeat margin-bottom "\n")) "\n")))))
+                #?(:cljs nil :clj (char-repeat margin-bottom "\n")) "\n"))))))
   nil)
 
 
