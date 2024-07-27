@@ -317,13 +317,8 @@
    order for the namespece info diagram to be rendered. If the `:form` option is
    supplied, but any of the others are omitted, only the form will be rendered
    (with a squiggly underline and no stacktrace diagram)."
-  [{:keys [line 
-           file
-           column
-           form
-           header
-           body
-           squiggly-color]
+  [{:keys [line file column form header body]
+    squiggly-color :type
     :as opts}]
   (let [file-info    (ns-info-str opts) 
         gutter       (some-> line str count spaces)
