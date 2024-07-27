@@ -1,3 +1,5 @@
+
+
 # get-rich
 
 **Helps you quickly get rich text into your console printing.**  
@@ -260,18 +262,28 @@ The above calls would render the following in your favorite terminal emulator:
 
 ## Templates for errors and warnings
 
-**`get-rich.core/callout`**, paired with **`get-rich.core/point-of-interest`** is perfect for creating your own custom error or warning messages:
+**`get-rich.core/callout`**, paired with **`get-rich.core/point-of-interest`** is perfect for creating your own custom error or warning messages. **`get-rich.core/point-of-interest`** takes a single map with the following options:
+
+| Option    | Type              | Description                                                  |
+| :-------- | ----------------- | ------------------------------------------------------------ |
+| `:file`   | string            | File or namespace                                            |
+| `:line`   | integer           | line number                                                  |
+| `:column` | integer           | column number                                                |
+| `:form`   | any               | The form to draw attention to<br />Automatically truncated at 33 chars |
+| `:type`   | keyword or string | Controls the color of the squiggly underline.<br />Should be one of: `:error` `:warning`, or `:neutral`.<br />Defaults to `:neutral` |
+| `:header` | string or vector  | Any number of lines of text at the start of the block        |
+| `:body`   | string or vector  | Any numbe of lines of text at the end of the block           |
 
 ```Clojure
 (defn example-custom-callout [opts]
-  (let [message (point-of-interest
-                 (merge opts
-                        {:squiggly-color :error
-                         :header         "Your header of your template goes here."
-                         :body           ["The body of your template goes here."
-                                          "Second line of copy."
-                                          "Another line."]}))]
-    (callout opts message)))
+  (let [poi-opts (merge opts
+                        {:header "Your header of your template goes here."
+                         :body   ["The body of your template goes here."
+                                  "Second line of copy."
+                                  "Another line."]})
+        message (point-of-interest poi-opts)
+        callout-opts (select-keys opts [:type :border-weight])]
+    (callout callout-opts message)))
 
 (example-custom-callout
  {:file   "example.ns.core"
@@ -280,13 +292,32 @@ The above calls would render the following in your favorite terminal emulator:
   :form   '(+ 1 true)
   :type   :error})
 ```
-<br>
+
+
 
 The above callout would render like this your terminal emulator: 
 
 <p align="center"><img src="resources/error-with-point-of-interest-light.png" width="750px" /></p>
 
 <p align="center"><img src="resources/error-with-point-of-interest-dark.png" width="750px" /></p>
+
+<br>
+
+## Go heavy
+
+If you want to place more emphasis on your callouts you can pass **`get-rich.core/callout`** a `:border-weight` option with a value of `:heavy`. Here is an example using the `example-custom-callout` function we defined above:
+
+```Clojure
+(example-custom-callout
+ {:file          "example.ns.core"
+  :line          11
+  :column        1
+  :form          '(+ 1 true)
+  :type          :error
+  :border-weight :heavy})
+```
+
+<p align="center"><img src="resources/error-with-point-of-interest-light-heavy.png" width="750px" /></p>
 
 <br>
 
