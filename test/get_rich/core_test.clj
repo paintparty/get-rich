@@ -6,207 +6,123 @@
 (println )
 
 (defn example-custom-callout [opts]
-  (let [message (point-of-interest
-                 (merge opts
-                        {:type   :error
-                         :header "Your header message goes here.\n"
-                         :body   (str "The body of your message goes here.\n"
-                                      "Second line of copy.\n"
-                                      "Another line.")}))]
-    (callout opts message)))
+  (let [poi-opts (merge opts
+                        {:header "Your header of your template goes here."
+                         :body   ["The body of your template goes here."
+                                  "Second line of copy."
+                                  "Another line."]})
+        message (point-of-interest poi-opts)
+        callout-opts (select-keys opts [:type :border-weight])]
+    (callout callout-opts message)))
 
-#_(example-custom-callout
- {:file       "example.ns.core"
-  :line       11
-  :column     1
-  :form       '(+ 1 true)
-  :type :error})
-
-;; (println 
-;;  (point-of-interest
-;;   {:file   "example.ns.core"
-;;    :line   11
-;;    :column 1
-;;    :form   '(+ 1 true)
-;;    :type   :error}))
-
-;; (println)
-;; (println)
-;; (println (point-of-interest
-;;           (merge {:file   "example.ns.core"
-;;                   :line   11
-;;                   :column 1
-;;                   :form   '(+ 1 true)
-;;                   :type   :error
-;;                   :header "Your header of your template goes here."
-;;                   :body   ["The body of your template goes here."
-;;                            "Second line of copy."
-;;                            "Another line."]})))
-
-
-(println)
-(println)
+;; Normal callout w/ poi
 (example-custom-callout
- {:type          :error
-  :border-weight :heavy
-  :file          "example.ns.core"
+ {:file   "example.ns.core"
+  :line   11
+  :column 1
+  :form   '(+ 1 true)
+  :type   :error })
+
+;; Heavy callout w/ poi
+(example-custom-callout
+ {:file          "example.ns.core"
   :line          11
   :column        1
-  :form          '(+ 1 true)})
-(println)
+  :form          '(+ 1 true)
+  :type          :error
+  :border-weight :heavy})
+
+;; Basics
+(println (enriched [:bold "bold"] ", " [:italic "italic"] ", or " [:blue "colored"]))
+
+;; Combo
+(println (enriched [:bold.italic "bold & italic"]
+                   ", "
+                   [:italic.blue "italic & colored"]
+                   ", "
+                   [:bold.italic.white.blue-bg "bold & italic & colored & colored-bg"]))
+
+;; Colors
+(println (enriched [:bold.red "Red"]
+                   ", "
+                   [:bold.yellow "Yellow"]
+                   ", "
+                   [:bold.green "Green"]
+                   ", "
+                   [:bold.blue "Blue"]
+                   ", "
+                   [:bold.purple "Purple"]
+                   ", "
+                   [:bold.magenta "Magenta"]
+                   ", "
+                   [:bold.gray "Gray"]
+                   ", "
+                   [:bold.black "Black"]
+                   ", "
+                   [:bold.white "White"] ))
+
+;; Semantic colors
+(println (enriched [:bold.negative "Negative"]
+                   ", "
+                   [:bold.error "Error"]
+                   ", "
+                   [:bold.warning "Warning"]
+                   ", "
+                   [:bold.positive "Positive"]
+                   ", "
+                   [:bold.info "Info"]
+                   ", "
+                   [:bold.subtle "Subtle"]
+                   ", "
+                   [:bold.neutral "Neutral"] ))
 
 
-;; (println)
-;; (println)
-;; (println)
-;; (println (enriched [:bold "bold"] ", " [:italic "italic"] ", or " [:blue "colored"]))
+;; callout examples
 
-;; (println)
-;; (println)
-;; (println (enriched [:bold.italic "bold & italic"]
-;;                    ", "
-;;                    [:italic.blue "italic & colored"]
-;;                    ", "
-;;                    [:bold.italic.white.blue-bg "bold & italic & colored & colored-bg"]))
-;; (println)
-;; (println)
+(callout
+ {:type :info}
+ "Example callout, with :type of :info")
 
-;; (println)
-;; (println (enriched [:bold.red "Red"]
-;;                    ", "
-;;                    [:bold.yellow "Yellow"]
-;;                    ", "
-;;                    [:bold.green "Green"]
-;;                    ", "
-;;                    [:bold.blue "Blue"]
-;;                    ", "
-;;                    [:bold.purple "Purple"]
-;;                    ", "
-;;                    [:bold.magenta "Magenta"]
-;;                    ", "
-;;                    [:bold.gray "Gray"]
-;;                    ", "
-;;                    [:bold.black "Black"]
-;;                    ", "
-;;                    [:bold.white "White"] ))
+(callout
+ {:type :info
+  :label      "My custom label"}
+ "Example callout, with :type of :info and custom :label")
 
-;; (println)
-;; (println (enriched [:bold.negative "Negative"]
-;;                    ", "
-;;                    [:bold.error "Error"]
-;;                    ", "
-;;                    [:bold.warning "Warning"]
-;;                    ", "
-;;                    [:bold.positive "Positive"]
-;;                    ", "
-;;                    [:bold.info "Info"]
-;;                    ", "
-;;                    [:bold.subtle "Subtle"]
-;;                    ", "
-;;                    [:bold.neutral "Neutral"] ))
+(callout
+ {:type :warning}
+  "Example callout, with :type of :warning")
 
+(callout
+ {:type :error}
+ "Example callout, with :type of :error")
 
-;; ;; ;; Rich text examples
+(callout
+ {:type :positive
+  :label      "SUCCESS!"}
+  "Example callout, with :type of :positive, and custom :label")
 
-;; ;; ;; callout examples
+(callout
+ {:type :subtle}
+ "Example callout, with :type of :subtle (or :gray)")
 
+(callout
+ {:type :magenta}
+ "Example callout, with :type of :magenta")
 
-;; (callout
-;;  {:type :info}
-;;  "Example callout, with :type of :info")
+(callout
+ {:type :purple}
+ "Example callout, with :type of :purple")
 
-;; (callout
-;;  {:type :info
-;;   :label      "My custom label"}
-;;  "Example callout, with :type of :info and custom :label")
+(callout
+ {:type           :error
+  :margin-top     3 ; default is 1
+  :margin-bottom  3 ; default is 1
+  :padding-top    2 ; default is 0
+  :padding-bottom 2 ; default is 0
+  }
+ "Example callout, with :type of :error, and custom spacing")
 
-;; (callout
-;;  {:type :warning}
-;;   "Example callout, with :type of :warning")
-
-;; (callout
-;;  {:type :error}
-;;  "Example callout, with :type of :error")
-
-;; (callout
-;;  {:type :positive
-;;   :label      "SUCCESS!"}
-;;   "Example callout, with :type of :positive, and custom :label")
-
-;; (callout
-;;  {:type :subtle}
-;;  "Example callout, with :type of :subtle (or :gray)")
-
-;; (callout
-;;  {:type :magenta}
-;;  "Example callout, with :type of :magenta")
-
-;; (callout
-;;  {:type :purple}
-;;  "Example callout, with :type of :purple")
-
-;; (callout
-;;  [:red "Example callout, default"])
-
-;; (callout
-;;  {:type           :error
-;;   :margin-top     3 ; default is 1
-;;   :margin-bottom  3 ; default is 1
-;;   :padding-top    2 ; default is 0
-;;   :padding-bottom 2 ; default is 0
-;;   }
-;;  "Example callout, with :type of :error, and custom spacing")
-
-;; (example-custom-callout
-;;  {:form-meta   {:file   "example.ns.core"
-;;                 :line   11
-;;                 :column 1}
-;;   :quoted-form '(+ 1 true)
-;;   :type  :warning})
-
-;; (example-custom-callout
-;;  {:form-meta   {:file   "example.ns.core"
-;;                 :line   11
-;;                 :column 1}
-;;   :quoted-form '(+ 1 true)
-;;   :type  :info})
-
-;; (example-custom-callout
-;;  {:form-meta   {:file   "example.ns.core"
-;;                 :line   11
-;;                 :column 1}
-;;   :quoted-form '(+ 1 true)})
-
-;; (callout
-;;  {:type     :info
-;;   :margin-top     1
-;;   :margin-bottom  1
-;;   :padding-top    0
-;;   :padding-bottom 0
-;;   :label          label
-;;   :message        (problem-with-line-info 
-;;                    form-meta
-;;                    {:type alert-type
-;;                     :header     "Your header message goes here."
-;;                     :form       quoted-form
-;;                     :body       [(str "The body of your message goes here.\n"
-;;                                       "Second line of copy.\n"
-;;                                       "Another line.")]})})
-
-
-;; (doseq [color #_[:error "error" :warning :info :positive :negative]
-;;         [:red :yellow :green :blue :purple :magenta :gray :black :white]
-;;         :let [nm (string/capitalize (name color))]]
-;;   (println (enriched [{:color color} nm]
-;;                      " "
-;;                      [{:color       color
-;;                        :font-weight :bold} nm])))
-
-;; (callout
-;;  {:message (string/join "\n"
-;;             (for [color [:red :yellow :green :blue :purple :magenta :gray :black :white]
-;;                   :let  [nm (string/capitalize (name color))]]
-;;               (enriched #_[{:color color} nm]
-;;                         #_" "
-;;                         [{:color       color
-;;                           :font-weight :bold} nm])))})
+(println "WARNING CALLOUT BELOW IS RESULT OF BAD CALL TO CALLOUT:")
+;; Bad call to callout, should produce warning callout
+(callout
+ [:red "Example malformed call to callout, default"])
