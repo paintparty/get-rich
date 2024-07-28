@@ -161,6 +161,9 @@
       (keyword? v)
       (number? v)))
 
+(defn- surround-with-quotes [x]
+  (str "\"" x "\""))
+
 (defn- shortened
   "Stringifies a collection and truncates the result with ellipsis 
    so that it fits on one line."
@@ -168,14 +171,16 @@
   (let [limit  limit
         as-str (str v)]
     (if (> limit (count as-str))
-      as-str
+      (surround-with-quotes as-str)
       (let [ret* (-> as-str
                      (string/split #"\n")
                      first)
             ret  (if (< limit (count ret*))
-                   (let [ret          (take limit ret*)
+                   (let [ret          (->> ret*
+                                           (take limit)
+                                           string/join)
                          string-like? (string-like? v)]
-                     (str (string/join ret)
+                     (str (if (string? v) (surround-with-quotes ret) ret)
                           (when-not string-like? " ")
                           "..."))
                    ret*)]
