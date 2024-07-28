@@ -138,8 +138,6 @@ Seven carefully selected colors, from the [xterm range 16-255](https://en.m.wiki
                    ", "
                    [:bold.blue "Blue"]
                    ", "
-                   [:bold.purple "Purple"]
-                   ", "
                    [:bold.magenta "Magenta"]
                    ", "
                    [:bold.gray "Gray"]
@@ -215,9 +213,19 @@ If you want to print `[1 2 3]` in red, you will need to stringify the vector:
 <br>
 
 ## Printing formatted blocks to the console
-**`get-rich.core/callout`** will print a message "block" to the console with a colored bounding border in the inline-start position:
+**`get-rich.core/callout`** will print a message "block" to the console with a colored bounding border in the inline-start position. It takes the following options:
 
-<!-- ;; Add success case to these -->
+| Option           | Type              | Description                                                  |
+| :--------------- | ----------------- | ------------------------------------------------------------ |
+| `:label`         | String            | Labels the callout. <br>In the case of a callout `:type` of `:warning`, `:error`, or `:info`, the value of the label will default to "WARNING", "ERROR", or "INFO", respectively. |
+| `:type`          | keyword or string | Controls the color of the border and label.<br />Should be one of: `:error`,  `:warning` , `:info` , `:positive`, or `:subtle`. <br>Can also be any one of the pallete colors such as  `:magenta`, `:green`,  `:negative`, `:neutral`, etc. |
+| `:border-weight` | keyword or string | Controls the weight of the border. If set to `:heavy`, will draw heavy border. Any other value or no value at all will render default border with standard unicode, single-line box-drawing character. |
+| `padding-top`    | Integer           | Amout of padding (in lines) at top of callout (inside callout block).<br/>Defaults to 0. |
+| `padding-bottom` | Integer           | Amout of padding (in lines) at bottom of callout (inside callout block).<br>Defaults to 0. |
+| `margin-top`     | Integer           | Amout of margin (in lines) at top of callout (outside callout block).<br>Defaults to 1. Only applies to terminal emulator printing. |
+| `margin-bottom`  | Integer           | Amout of margin (in lines) at bottom of callout (outside callout block).<br>Defaults to 0. Only applies to terminal emulator printing. |
+
+
 
 ```Clojure
 (callout {:type :info}
@@ -233,8 +241,8 @@ If you want to print `[1 2 3]` in red, you will need to stringify the vector:
 (callout {:type :error}
          "Example callout, with :type of :error")
 
-(callout {:type :positive
-          :label      "SUCCESS!"}
+(callout {:type  :positive
+          :label "SUCCESS!"}
          "Example callout, with :type of :positive, and custom :label")
 
 (callout {:type :subtle}
@@ -242,9 +250,6 @@ If you want to print `[1 2 3]` in red, you will need to stringify the vector:
 
 (callout {:type :magenta}
          "Example callout, with :type of :magenta")
-
-(callout {:type :purple}
-         "Example callout, with :type of :purple")
 
 (callout "Example callout, default")
 ```
@@ -262,7 +267,9 @@ The above calls would render the following in your favorite terminal emulator:
 
 ## Templates for errors and warnings
 
-**`get-rich.core/callout`**, paired with **`get-rich.core/point-of-interest`** is perfect for creating your own custom error or warning messages. **`get-rich.core/point-of-interest`** takes a single map with the following options:
+**`get-rich.core/callout`**, paired with **`get-rich.core/point-of-interest`** is perfect for creating your own custom error or warning messages. 
+
+**`get-rich.core/point-of-interest`** takes a single map with the following options:
 
 | Option    | Type              | Description                                                  |
 | :-------- | ----------------- | ------------------------------------------------------------ |
