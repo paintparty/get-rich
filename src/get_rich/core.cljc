@@ -542,7 +542,7 @@
                    (str "\n" (enriched [thick-style "  "]))
                    (enriched [thick-style (if wrap? "\n" " ")]))
                   
-                 ;; subtle
+                  ;; subtle
                   (str
                    (enriched [border-opts (str "┏" (some->> label (str  "━ " )))])
                    (when-not heavy? 
@@ -554,7 +554,7 @@
                    (char-repeat padding-bottom 
                                 (str "\n" (enriched [border-opts left-border])))
                    (str "\n" (enriched [border-opts (str "┗")]))))
-                (char-repeat margin-bottom "\n") "\n"))))))
+                (char-repeat margin-bottom "\n")))))))
   nil)
 
 
