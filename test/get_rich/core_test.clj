@@ -51,8 +51,6 @@
                    ", "
                    [:bold.blue "Blue"]
                    ", "
-                   [:bold.purple "Purple"]
-                   ", "
                    [:bold.magenta "Magenta"]
                    ", "
                    [:bold.gray "Gray"]
@@ -108,10 +106,6 @@
 (callout
  {:type :magenta}
  "Example callout, with :type of :magenta")
-
-(callout
- {:type :purple}
- "Example callout, with :type of :purple")
 
 (callout
  {:type           :error
