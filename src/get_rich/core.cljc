@@ -353,6 +353,13 @@
       (when body ["\n"])
       body-lines))))
 
+;; Race-condition-free version of clojure.core/println,
+;; maybe useful if any weird behavior arises
+#?(:clj
+   (defn- safe-println [& more]
+     (.write *out* (str (clojure.string/join " " more) "\n"))))
+
+
 
 (defn ^:public callout
   "Prints a message to the console with a block-based coloring motif
