@@ -493,7 +493,7 @@
    (let [padding-top    (default-spacing padding-top 0)
          padding-bottom (default-spacing padding-bottom 0)
          margin-top     (default-spacing margin-top 1)
-         margin-bottom  (default-spacing margin-bottom 1)
+         margin-bottom  (default-spacing margin-bottom 0)
          callout-type   (callout-type opts)
          color          (or callout-type "neutral")
          heavy?         (contains? {:heavy "heavy"} border-weight)
