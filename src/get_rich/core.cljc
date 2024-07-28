@@ -299,6 +299,7 @@
   (if (and (int? n) (<= 0 n)) n default))
 
 
+(declare callout)
 (declare enriched)
 (declare print-enriched)
 
@@ -319,35 +320,72 @@
        ()))
   (cond (coll? x) x :else [x]))
 
+
 ;; Formatting exceptions ----------------------------------------------------------
 
-(defn user-friendly-clj-stack-trace
+(defn stack-trace-preview
+  "Creates a user-friendly stack-trace preview, limited to the frames which
+   contain a match with the supplied regex, up to the `depth` value, if supplied.
+   `depth` defaults to 7."
   [{:keys [error regex depth]}]
   #?(:clj
-     (let [st          (->> error .getStackTrace)
-           st-len      (count st)
-           mini-st     (->> st (take 10) (map StackTraceElement->vec))
-           indexes     (keep-indexed (fn [i [f]]
+     (if-let [strace (some->> (maybe error #(instance? Exception %))
+                              .getStackTrace
+                              seq)]
+       (let [_ (try (+ 1 true)
+                    (catch Exception e (println (instance? Exception e))))
+             strace-len  (count strace)
+             depth       (or (maybe depth pos-int?) 7)
+
+             ;; Get a mini-strace, limited to the number of frames that will be
+             ;; displayed based on `depth`
+             mini-strace (->> strace
+                              (take depth)
+                              (map StackTraceElement->vec))
+
+             ;; If regex is legit, get a list of indexes that match the regex
+             ;; passed in by user. Regex will match on ns or filename where
+             ;; user's their program lives. Then get the last index of a match
+             ;; (within the mini-strace). If regex is not legit, use the depth.
+             last-index  (if (= java.util.regex.Pattern (type regex))
+                           (some->> mini-strace
+                                    (keep-indexed
+                                     (fn [i [f]]
                                        (when (re-find regex (str f)) 
-                                         i))
-                                     mini-st)
-           last-index  (when (seq indexes)
-                         (->> indexes 
-                              (take (if (pos-int? depth) depth 5))
-                              last))
-           trace*      (when last-index
-                         (->> mini-st (take (inc last-index))))
-           len         (when trace* (count trace*)) 
-           trace       (some->> trace* (interpose "\n") (into []))
-           num-dropped (- (or st-len 0) (or len 0))
-           trace       (when trace
-                         (conj trace
-                               "\n"
-                               (symbol (str "..."
-                                            (some->> num-dropped
-                                                     (str "+"))))))]
-       (apply str trace)))
-  )
+                                         i)))
+                                    seq
+                                    (take depth)
+                                    last)
+                           (dec depth))
+
+             ;; Get all the frames up to the last index
+             trace*      (when last-index
+                           (->> mini-strace (take (inc last-index))))
+             len         (when trace* (count trace*)) 
+             trace       (some->> trace* (interpose "\n") (into []))
+             num-dropped (when trace 
+                           (let [n (- (or strace-len 0) (or len 0))]
+                             (some->> (maybe n pos-int?)
+                                      (str "\n...+"))))
+
+             ;; Conj num-dropped annotation to mini-strace
+             trace       (some-> trace (conj num-dropped))]
+         ;; Create and return multiline string
+         (apply str trace))
+       (callout {:type :warning}
+                (enriched 
+                 "get-rich.core/stack-trace-preview\n\n"
+                 "Value of the "
+                 [:bold :error]
+                 " option should be an instance of "
+                 [:bold 'java.lang.Exception.]
+                 "\n\n"
+                 "Value received:\n"
+                 [:bold (shortened error 33)]
+                 "\n\n"
+                 "Type of value received:\n"
+                 [:bold (str (type error))]
+                 )))))
 
 
 
@@ -569,7 +607,7 @@
                         :value \"hi\"}"
   [[style v]]
   (->EnrichedText
-   (as-str v)
+   (str v)
    (cond 
      (map? style)
      (reduce-kv convert-color {} style)
