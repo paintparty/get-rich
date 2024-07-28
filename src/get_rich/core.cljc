@@ -478,8 +478,8 @@
                            :color            :white
                            :font-weight      :bold}
               left-border (if heavy? "  " "┃  ")]
-          (print
-           (str #?(:cljs nil :clj (char-repeat margin-top "\n"))
+          (safe-println
+           (str (char-repeat margin-top "\n")
                 (if heavy?
                   (str
                    (enriched [thick-style (if wrap?
@@ -511,8 +511,7 @@
                    (char-repeat padding-bottom 
                                 (str "\n" (enriched [border-opts left-border])))
                    (str "\n" (enriched [border-opts (str "┗")]))))
-
-                #?(:cljs nil :clj (char-repeat margin-bottom "\n")) "\n"))))))
+                (char-repeat margin-bottom "\n") "\n"))))))
   nil)
 
 
