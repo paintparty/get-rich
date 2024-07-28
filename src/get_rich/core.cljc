@@ -1,6 +1,15 @@
+;; TODO 
+;; point of interest 
+;; - Should take vector as the :line entry
+;;     If a vector is supplied, draw a range of numbered lines if you can read
+;;     ns at those lines.
+;; - Should additional file-info (string), which would override the gen option
+;; 
+
+
+;; Adds about 9kb to a cljs bundle
 (ns get-rich.core
-  (:require [clojure.string :as string]
-            [clojure.walk :as walk]))
+  (:require [clojure.string :as string]))
 
 ;; Defs -----------------------------------------------------------------------
 
@@ -304,6 +313,38 @@
        :clj
        ()))
   (cond (coll? x) x :else [x]))
+
+;; Formatting exceptions ----------------------------------------------------------
+
+(defn user-friendly-clj-stack-trace
+  [{:keys [error regex depth]}]
+  #?(:clj
+     (let [st          (->> error .getStackTrace)
+           st-len      (count st)
+           mini-st     (->> st (take 10) (map StackTraceElement->vec))
+           indexes     (keep-indexed (fn [i [f]]
+                                       (when (re-find regex (str f)) 
+                                         i))
+                                     mini-st)
+           last-index  (when (seq indexes)
+                         (->> indexes 
+                              (take (if (pos-int? depth) depth 5))
+                              last))
+           trace*      (when last-index
+                         (->> mini-st (take (inc last-index))))
+           len         (when trace* (count trace*)) 
+           trace       (some->> trace* (interpose "\n") (into []))
+           num-dropped (- (or st-len 0) (or len 0))
+           trace       (when trace
+                         (conj trace
+                               "\n"
+                               (symbol (str "..."
+                                            (some->> num-dropped
+                                                     (str "+"))))))]
+       (apply str trace)))
+  )
+
+
 
 ;; Line and point of interest public fns  -------------------------------------
 
