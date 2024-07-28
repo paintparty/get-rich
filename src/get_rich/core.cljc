@@ -14,8 +14,7 @@
 ;; Defs -----------------------------------------------------------------------
 
 (def ^:private xterm-colors-by-id
-  {135 "#af5fff"
-   39  "#00afff"
+  {39  "#00afff"
    40  "#00d700"
    178 "#d7af00"
    247 "#9e9e9e"
@@ -64,7 +63,6 @@
    "yellow" {:sgr 178 :semantic "warning"}
    "green"  {:sgr 40 :semantic "positive"}
    "blue"   {:sgr 39 :semantic "accent"}
-   "purple" {:sgr 135}
    "magenta"{:sgr 201}
    "gray"   {:sgr 247 :semantic "subtle"}
    "black"  {:sgr 16}
