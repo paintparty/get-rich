@@ -1,8 +1,20 @@
 ;; TODO 
+
+;; callout
+
+;; - Should we do callout-data as separate function, 
+;;   or document the :data? option?
+
+;; - Should callout spread the &args, or just take a
+;;   message, which can be a string or vector for enriched
+
+
 ;; point of interest 
+
 ;; - Should take vector as the :line entry
 ;;     If a vector is supplied, draw a range of numbered lines if you can read
 ;;     ns at those lines.
+
 ;; - Should additional file-info (string), which would override the gen option
 ;; 
 
@@ -469,6 +481,7 @@
   and `padding-bottom` options."
   [{:keys [label
            wrap?
+           data?
            border-weight
            margin-top
            margin-bottom
@@ -507,21 +520,32 @@
                               (nth 0 nil)
                               (maybe array?))
                       (into-array message))]
-          (.apply f js/console arr))
+          (if (true? data?)
+            arr
+            (.apply f js/console arr)))
         :clj
-        (let [label       (or label
-                              (get alert-type->label
-                                   callout-type
-                                   nil))
-              border-opts {:font-weight :bold
-                           :color       color}
-              thick-style {:background-color color
-                           :color            :white
-                           :font-weight      :bold}
-              left-border (if heavy? "  " "┃  ")]
-          (safe-println
-           (str (char-repeat margin-top "\n")
+        (let [label
+              (or label
+                  (get alert-type->label
+                       callout-type
+                       nil))
+
+              border-opts
+              {:font-weight :bold
+               :color       color}
+
+              thick-style
+              {:background-color color
+               :color            :white
+               :font-weight      :bold}
+
+              left-border
+              (if heavy? "  " "┃  ")
+
+              callout-str
+              (str (char-repeat margin-top "\n")
                 (if heavy?
+                  ;; heavy style border
                   (str
                    (enriched [thick-style (if wrap?
                                             (str "\n    " label)
@@ -540,7 +564,7 @@
                    (str "\n" (enriched [thick-style "  "]))
                    (enriched [thick-style (if wrap? "\n" " ")]))
                   
-                  ;; subtle
+                  ;; standard border
                   (str
                    (enriched [border-opts (str "┏" (some->> label (str  "━ " )))])
                    (when-not heavy? 
@@ -552,8 +576,10 @@
                    (char-repeat padding-bottom 
                                 (str "\n" (enriched [border-opts left-border])))
                    (str "\n" (enriched [border-opts (str "┗")]))))
-                (char-repeat margin-bottom "\n")))))))
-  nil)
+                (char-repeat margin-bottom "\n"))]
+          (if (true? data?)
+            callout-str
+            (println callout-str)))))))
 
 
 
