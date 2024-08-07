@@ -21,7 +21,8 @@
 
 ;; Adds about 9kb to a cljs bundle
 (ns get-rich.core
-  (:require [clojure.string :as string]))
+  (:require [clojure.string :as string]
+            #?(:cljs [goog.object])))
 
 ;; Defs -----------------------------------------------------------------------
 
@@ -453,133 +454,203 @@
    (defn- safe-println [& more]
      (.write *out* (str (clojure.string/join " " more) "\n"))))
 
-
+#?(:cljs 
+   (do
+     (defn ^:public print-enriched
+       ([o]
+        (print-enriched o js/console.log))
+       ([o f]
+        ;; (js/console.log o)
+        (.apply f js/console (goog.object/get o "consoleArray"))))
+     (deftype Enriched [tagged css consoleArray])))
 
 (defn ^:public callout
   "Prints a message to the console with a block-based coloring motif
   controlled by the `:type` option.
   
   In terminal emulator consoles, this will print a colored bounding
-  border in the inline start position. In browser consoles, a border
-  is not used, as the background and foreground text of the message
-  block is automatically colored by the browser dev tools logging
-  mechanism based on the type of logging function that is used,
-  e.g. `console.error`, `console.warn`, or `console.log`. 
-  The color of the border is determined by the value of the
-  `:type` option. The default color is magenta.
+  border in the inline start position. The color of the border is
+  determined by the value of the `:type` option.
+   
+  In browser consoles, a border is not used, as the background and
+  foreground text of the message block is automatically colored by
+  the browser dev tools logging mechanism based on the type of logging
+  function that is used. However, this automatic styling only applies
+  to the `:type` options of `:error` and `:warn`.
        
-  Prints an optional, bolded label in the same color as the border,
-  in the block start postion. If an :type option is set, the
+  Prints an optional, bolded label in the same color as the callout
+  styling, in the block start postion. If a :type option is set, the
   label string will default to an uppercased version of that string,
   e.g. {:type :INFO} => \"INFO\". If a `:label` option is
   supplied, that value is used instead.
        
-  The amount of space (in number of lines) above and below the
-  message block can be controlled the `margin-top` and `margin-bottom`
-  options. The amount of vertical padding (in number of lines) within
+  The amount of vertical padding (in number of lines) within
   the bounds of the message body can be controlled the `padding-top`
-  and `padding-bottom` options."
-  [{:keys [label
-           wrap?
-           data?
-           border-weight
-           margin-top
-           margin-bottom
-           padding-top
-           padding-bottom]
-    :as opts}
-   & message]
-  (if-not (map? opts)
-   (callout
-    {:type          :warning
+  and `padding-bottom` options. The amount of space (in number of lines)
+  above and below the message block can be controlled the `margin-top`
+  and `margin-bottom` options. Margins are only applicable to callouts
+  formatted for the terminal emulator."
+  ([value]
+   (callout {} value))
+  ([{:keys [label
+            wrap?
+            data?
+            border-weight
+            margin-top
+            margin-bottom
+            padding-top
+            padding-bottom
+            padding-left]
+     :as   opts}
+    value]
+   (if-not (map? opts)
+     (callout
+      {:type :warning
     ;; :border-weight :heavy
-     }
-    (point-of-interest
-     {:type   :warning
-      :header "get-rich.core/callout"
-      :form   (cons 'callout (cons opts message))
-      :body   (str "get-rich-core/callout expects a map of options,\n"
-                   "followed by any number of values (usually strings).\n\n"
-                   "Nothing will be printed.")}))
-   (let [padding-top    (default-spacing padding-top 0)
-         padding-bottom (default-spacing padding-bottom 0)
-         margin-top     (default-spacing margin-top 1)
-         margin-bottom  (default-spacing margin-bottom 0)
-         callout-type   (callout-type opts)
-         color          (or callout-type "neutral")
-         heavy?         (contains? {:heavy "heavy"} border-weight)
-         wrap?          (true? wrap?)]
+       }
+      (point-of-interest
+       {:type   :warning
+        :header "get-rich.core/callout"
+        :form   (cons 'callout (list opts value))
+        :body   (str "get-rich-core/callout expects a map of options,\n"
+                     "followed by any number of values (usually strings).\n\n"
+                     "Nothing will be printed.")}))
+     (let [padding-top    (default-spacing padding-top #?(:cljs 1 :clj 0))
+           padding-bottom (default-spacing padding-bottom #?(:cljs 1 :clj 0))
+           padding-left   (default-spacing padding-left #?(:cljs 0 :clj 1))
+           margin-top     (default-spacing margin-top 1)
+           margin-bottom  (default-spacing margin-bottom 0)
+           callout-type   (callout-type opts)
+           color          (or callout-type "neutral")
+           border-weight  (or (some-> border-weight
+                                      (maybe #{:light
+                                               "light"
+                                               :heavy
+                                               "heavy"
+                                               :medium})
+                                      name)
+                              "light")
+           wrap?          (true? wrap?)
+           label          (or label
+                              (get alert-type->label
+                                   callout-type
+                                   nil))]
 
-     #?(:cljs
-       ;; move to enriched or data
-        (let [f   (case callout-type 
-                    "warning" (.-warn  js/console)
-                    "error"   (.-error  js/console)
-                    (.-log  js/console))
-              arr (or (some-> message
-                              (nth 0 nil)
-                              (maybe array?))
-                      (into-array message))]
-          (if (true? data?)
-            arr
-            (.apply f js/console arr)))
-        :clj
-        (let [label
-              (or label
-                  (get alert-type->label
-                       callout-type
-                       nil))
 
-              border-opts
-              {:font-weight :bold
-               :color       color}
+       #?(:cljs
+          ;; move to enriched or data
+          (let [f
+                (case callout-type 
+                  "warning" (.-warn  js/console)
+                  "error"   (.-error  js/console)
+                  (.-log  js/console))
 
-              thick-style
-              {:background-color color
-               :color            :white
-               :font-weight      :bold}
 
-              left-border
-              (if heavy? "  " "┃  ")
+                pb-str
+                (when (pos-int? padding-bottom)
+                  (char-repeat padding-bottom "\n"))
 
+                arr
+                (cond
+                  (and (instance? Enriched value)
+                       (instance? Enriched label))
+                  (let [tagged       (goog.object/get value "tagged")
+                        css          (goog.object/get value "css")
+                        label-css    (goog.object/get label "css")
+                        label        (some-> (goog.object/get label "tagged")
+                                             (str "\n"
+                                                  (char-repeat padding-top
+                                                               "\n")))]
+                    (.concat #js[(str label
+                                      tagged
+                                      pb-str)]
+                             (.concat label-css css)))
+                  :else
+                  #js[(str (some-> label
+                                   (str "\n"
+                                        (char-repeat padding-top "\n")))
+                           value
+                           pb-str)])]
+
+            (if (true? data?)
+              arr 
+              (.apply f js/console arr)))
+          
+
+          :clj
+          ;; TODO - abstract this so you can use from server-side js
+          (let [thin-border-opts
+                {:font-weight :bold
+                 :color       color}
+
+                label-opts
+                thin-border-opts
+
+                thick-style 
+                {:background-color color
+                 :color            :white
+                 :font-weight      :bold}
+
+                border-style
+                thick-style
+
+                left-border 
+                (case border-weight
+                  "light"   "┃"
+                  "medium"  " "
+                  "heavy"   "  ")
+
+                padding-left
+                2
+
+                callout-str
+                (str (char-repeat margin-top "\n")
+                     (if (contains? #{"heavy" "medium"} border-weight)
+                       ;; heavy style border
+                       (str
+                        (enriched [border-style
+                                   (if wrap?
+                                     (str "\n   " label)
+                                     (str left-border))]
+                                  (when label (char-repeat padding-left " "))
+                                  (when label [label-opts label]))
+                        (str "\n" (enriched [border-style left-border]))
+                        (string/replace 
+                         (str (char-repeat padding-top "\n")
+                              (char-repeat padding-left " ")
+                              value)
+                         #"\n"
+                         (str "\n" (enriched [border-style left-border] " ")))
+                        (char-repeat padding-bottom 
+                                     (str "\n"
+                                          (enriched [border-style left-border])))
+                        #_(enriched [thick-style (if wrap? "\n" " ")]))
+                       
+                       ;; standard border, supports left-padding
+                       (str
+                        (enriched [thin-border-opts
+                                   (str "┏"
+                                        (some->> label
+                                                 (str (char-repeat padding-left "━")
+                                                      " ")))])
+                        (string/replace 
+                         (str (char-repeat padding-top "\n") "\n"
+                              value)
+                         #"\n"
+                         (str "\n"
+                              (enriched [thin-border-opts "┃ "]
+                                        (char-repeat padding-left " "))))
+                        (char-repeat padding-bottom 
+                                     (str "\n" (enriched [thin-border-opts
+                                                          left-border])))
+                        (str "\n"
+                             (enriched [thin-border-opts
+                                        (str "┗"
+                                             (char-repeat padding-left "━"))]))))
+                     (char-repeat margin-bottom "\n"))]
+            (if (true? data?)
               callout-str
-              (str (char-repeat margin-top "\n")
-                (if heavy?
-                  ;; heavy style border
-                  (str
-                   (enriched [thick-style (if wrap?
-                                            (str "\n    " label)
-                                            (str "  " (if label
-                                                        (str "  " label "  ")
-                                                        " ")))])
-                   (str "\n" (enriched [thick-style "  "]))
-                   (string/replace 
-                    (str (char-repeat padding-top "\n") "\n"
-                         (nth message 0 nil))
-                    #"\n"
-                    (str "\n" (enriched [thick-style "  "] "  ")))
-                   (char-repeat padding-bottom 
-                                (str "\n" (enriched [thick-style left-border])))
-                   (str "\n" (enriched [thick-style "  "]))
-                   (str "\n" (enriched [thick-style "  "]))
-                   (enriched [thick-style (if wrap? "\n" " ")]))
-                  
-                  ;; standard border
-                  (str
-                   (enriched [border-opts (str "┏" (some->> label (str  "━ " )))])
-                   (when-not heavy? 
-                     (string/replace 
-                      (str (char-repeat padding-top "\n") "\n"
-                           (nth message 0 nil))
-                      #"\n"
-                      (str "\n" (enriched [border-opts "┃  "]))))
-                   (char-repeat padding-bottom 
-                                (str "\n" (enriched [border-opts left-border])))
-                   (str "\n" (enriched [border-opts (str "┗")]))))
-                (char-repeat margin-bottom "\n"))]
-          (if (true? data?)
-            callout-str
-            (println callout-str)))))))
+              (println callout-str))))))))
 
 
 
@@ -680,34 +751,55 @@
   (let [[coll css] (reduce enriched-data-inner
                            [[] []]
                            coll)
-        joined     (string/join coll)]
-    {:css-array  (into-array (concat [joined] css))
-     :tagged-str joined}))
+        tagged     (string/join coll)]
+    {:console-array (into-array (concat [tagged] css))
+     :tagged        tagged
+     :css           css}))
 
 
 (defn ^:public enriched-data [coll]
   #?(:cljs
-     (-> coll enriched-data* :css-array)
+     (enriched-data* coll)
      :clj
-     (-> coll enriched-data* :tagged-str)))
+     (-> coll enriched-data* :tagged)))
 
 
 (defn ^:public enriched-data-css [coll]
-  (-> coll enriched-data* :css-array))
+  (-> coll enriched-data* :css))
 
-#?(:cljs 
-   (defn ^:public print-enriched
-     ([arr]
-      (print-enriched arr js/console.log))
-     ([arr f]
-      (.apply f js/console arr))))
 
 (defn ^:public enriched
+  "In a terminal emulator context, returns a string tagged with SGR codes to
+   style the text as desired.
+   
+   In a browser context, returns an instance of
+   `Enriched`, a js object with the the following fields:
+
+   `tagged`
+   A string with the appropriate tags for styling in browser consoles
+  
+   `css`
+   An array of styles that sync with the tagged string.
+
+   `consoleArray`
+   An array by `Array.unshift`ing the tagged string onto the css array.
+   This is the format that is needed for printing in a browser console, e.g.
+   `(.apply js/console.log js/console (goog.object/get o \"consoleArray\"))`.
+   
+   For browser usage, sugar for the above `.apply` call is provided with
+   `get-rich.core/print-enriched`. You can use it like this:
+   `(print-enriched (enriched [:bold.blue \"my blue text\"]))"
+
   [& coll]
-  (let [{:keys [css-array tagged-str] :as m} (enriched-data* coll)]
-    #?(:cljs
-       (let [js-arr css-array]
-         #_(.apply js/console.log js/console js-arr)
-         css-array)
-       :clj tagged-str)))
+  #?(:cljs
+     (let [{:keys [css tagged console-array]} (enriched-data* coll)]
+      ;;  (js/console.log "tagged:" tagged)
+      ;;  (js/console.log "css:" css)
+      ;;  (js/console.log "console-array:" console-array)
+       #_(.apply js/console.log js/console js-arr)
+       #_css
+       (Enriched. tagged
+                  (into-array css)
+                  console-array))
+     :clj (:tagged (enriched-data* coll))))
 

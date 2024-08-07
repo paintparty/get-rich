@@ -127,7 +127,7 @@ You can add multiple decorations with hiccup-style tags (a keyword with dot sepa
 
 ### The get-rich pallette 
 
-Eight carefully selected colors, from the [xterm range 16-255](https://en.m.wikipedia.org/wiki/Xterm#/media/File%3AXterm_256color_chart.svg), are available for use (shown in bold). All of these colors should display consistantly across most consoles on the end-user side. Don't expect all of the colors to pass the [strictest APCA contrast criterion](https://www.myndex.com/APCA/), but you can be sure that they will be reasonably visible on both light and dark backgrounds:
+Eight carefully selected colors, from the [xterm range 16-255](https://en.m.wikipedia.org/wiki/Xterm#/media/File%3AXterm_256color_chart.svg), are available for use (shown in bold). All of these colors should display consistantly across most consoles on the end-user side. Don't expect all of the colors to pass the [strictest APCA contrast criterion](https://www.myndex.com/APCA/), but you can be sure of reasonably visibility on both light and dark backgrounds:
 
 ```Clojure
 (println (enriched [:bold.red "Red"]
