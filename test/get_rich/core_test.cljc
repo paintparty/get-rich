@@ -2,39 +2,172 @@
   (:require [clojure.test :as test]
             [clojure.string :as string]
             [get-rich.core :as gr :refer [enriched callout point-of-interest]]
-            #?(:cljs [get-rich.core :refer [print-enriched]])))
+            #?(:cljs [get-rich.core :refer [print-enriched enriched]])))
 
 
 (def printer
   #?(:cljs gr/print-enriched :clj println))
 
-(defn example-custom-callout [opts]
-  (let [poi-opts (merge opts
-                        {:header "Your header of your template goes here."
-                         :body   ["The body of your template goes here."
-                                  "Second line of copy."
-                                  "Another line."]})
-        message (point-of-interest poi-opts)
-        callout-opts (select-keys opts [:type :border-weight])]
+
+(defn example-custom-callout
+  [{:keys [point-of-interest-opts callout-opts]}]
+  (let [poi-opts     (merge {:header "Your header message goes here."
+                             :body   (str "The body of your template goes here."
+                                          "\n"
+                                          "Second line of copy."
+                                          "\n"
+                                          "Another line.")}
+                            point-of-interest-opts)
+        message      (point-of-interest poi-opts)
+        callout-opts (merge callout-opts
+                            {:padding-top 1})]
     (callout callout-opts message)))
 
 
-;; Normal callout w/ poi
+;; Default callout w/ poi
+(example-custom-callout
+ {:point-of-interest-opts {:file   "example.ns.core"
+                           :line   11
+                           :column 1
+                           :form   '(+ 1 true)
+                           :type   :error}
+  :callout-opts           {:type  :error
+                           :border-weight :medium}})
+
+;; ;; Default callout w/ poi, regex-form
 ;; (example-custom-callout
-;;  {:file   "example.ns.core"
-;;   :line   11
-;;   :column 1
-;;   :form   '(+ 1 true)
-;;   :type   :error })
+;;  {:point-of-interest-opts {:file   "example.ns.core"
+;;                            :line   11
+;;                            :column 1
+;;                            :form   #"dude"
+;;                            :type   :error}
+;;   :callout-opts           {:type  :error}})
+
+;; ;; Medium callout w/ poi
+;; (example-custom-callout
+;;  {:point-of-interest-opts {:file   "example.ns.core"
+;;                            :line   11
+;;                            :column 1
+;;                            :form   '(+ 1 true)
+;;                            :type   :error}
+;;   :callout-opts           {:type          :error
+;;                            :border-weight :medium}})
 
 ;; ;; Heavy callout w/ poi
 ;; (example-custom-callout
-;;  {:file          "example.ns.core"
-;;   :line          11
-;;   :column        1
-;;   :form          '(+ 1 true)
-;;   :type          :error
-;;   :border-weight :heavy})
+;;  {:point-of-interest-opts {:file   "example.ns.core"
+;;                            :line   11
+;;                            :column 1
+;;                            :form   '(+ 1 true)
+;;                            :type   :error}
+;;   :callout-opts           {:type          :error
+;;                            :border-weight :heavy}})
+
+;; ;; Normal callout w/ poi, label enriched
+;; (example-custom-callout
+;;  {:point-of-interest-opts {:file   "example.ns.core"
+;;                            :line   11
+;;                            :column 1
+;;                            :form   '(+ 1 true)
+;;                            :type   :error}
+;;   :callout-opts {:label         (enriched [:red-bg.bold.white " ERROR "])
+;;                  :type          :error}})
+
+;; ;; callout w/ enriched header and body on poi
+;; (example-custom-callout
+;;  {:point-of-interest-opts {:file   "example.ns.core"
+;;                            :line   11
+;;                            :column 1
+;;                            :form   '(+ 1 true)
+;;                            :type   :error
+;;                            :header (enriched [:blue.italic "Enriched header."])
+;;                            :body   (enriched [:green.italic "Enriched body."]
+;;                                              "\n"
+;;                                              [:yellow.italic "Body line 2."])}
+;;   :callout-opts           {:type  :error}})
+
+
+;; (callout "Default callout, no options")
+
+;; (callout {:padding-left 2} "Default callout, no label, left padding")
+
+;; (callout {:label "My label"} "Default callout, custom label")
+
+;; (callout {:type :warning} "Callout, type :warning, default label")
+
+;; (callout {:type :warning :label "My warning"}
+;;          "Callout, type :warning, custom label")
+
+;; (callout {:type :warning :label (enriched [:bold.yellow-bg.black " My warning "])}
+;;          "Callout, type :warning, custom enriched label")
+
+;; (callout {:type           :warning
+;;           :padding-top    1
+;;           :padding-bottom 1
+;;           :padding-left   2} 
+;;          "Callout, type :warning, default label, custom padding")
+
+;; (callout {:type  :positive
+;;           :label (enriched [:positive-bg.white.bold " YES "])}
+;;          "Callout, type :positve, enriched label")
+
+;; (callout {:label "YES" :type "positive"}
+;;          "Callout, type :positve, user label")
+
+;; (callout {:type :warning}
+;;          (point-of-interest {:line   11
+;;                              :column 2
+;;                              :form   '(+ 1 1)
+;;                              :file   "myfile.cljs"
+;;                              :type   :warning}))
+
+
+;; (callout {:type :magenta}
+;;          (point-of-interest {:line   11
+;;                              :column 2
+;;                              :form   '(+ 1 1)
+;;                              :file   "myfile.cljs"
+;;                              :type   :magenta}))
+
+;; ;; poi with (default) :margin-block of 1
+;; (callout {:type :error}
+;;          (point-of-interest {:line   11
+;;                              :column 2
+;;                              :form   '(+ 1 1)
+;;                              :file   "myfile.cljs"
+;;                              :type   :error}))
+;; (callout {:type          :magenta
+;;           :border-weight :heavy}
+;;          (point-of-interest {:line   11
+;;                              :column 2
+;;                              :form   '(+ 1 1)
+;;                              :file   "myfile.cljs"
+;;                              :type   :magenta}))
+
+;; ;; poi with :margin-block of 0
+;; (callout {:type          :magenta
+;;           :border-weight :heavy}
+;;          (point-of-interest {:line         11
+;;                              :column       2
+;;                              :form         '(+ 1 1)
+;;                              :file         "myfile.cljs"
+;;                              :type         :magenta
+;;                              :margin-block 0}))
+
+
+;; (callout {:type          :magenta
+;;           :border-weight :heavy}
+;;          (enriched [:blue "One line."]
+;;                    #_"\n"
+;;                    #_[:red "red"]))
+
+;; (callout {:type          :magenta
+;;           :border-weight :heavy
+;;           ;; :label "foo"
+;;           }
+;;          (enriched [:blue "1 of 2 lines."]
+;;                    "\n"
+;;                    [:red "2nd line"]))
 
 ;; ;; Basics
 ;; (printer (enriched [:bold "bold"] ", " [:italic "italic"] ", or " [:blue "colored"]))
@@ -78,13 +211,8 @@
 ;;                    ", "
 ;;                    [:bold.neutral "Neutral"] ))
 
-
-;; callout examples
-;; (printer (enriched [:blue "Example callout, default"]))
-
-
 ;; (callout
-;;  {:type :warning
+;;  {:type :info
 ;;   :label (enriched 
 ;;           [:magenta-bg.white.bold " "]
 ;;           [:red-bg.white.bold "R"]
@@ -110,40 +238,51 @@
 ;;  (enriched "Example callout, :type of :warning, rainbow-bg label" ))
 
 ;; (callout
-;;  "Example callout, with :type of :info, single-arity")
+;;  {:type :info
+;;   :border-weight :heavy
+;;   :label (enriched 
+;;           [:magenta.bold "R"]
+;;           [:red.bold "A"]
+;;           [:yellow.bold "I"]
+;;           [:green.bold "N"]
+;;           [:blue.bold "B"]
+;;           [:magenta.bold "O"]
+;;           [:red.bold "W"])}
+;;  (enriched "Example callout, :type of :warning, rainbow-bg label" ))
+
+;; (callout
+;;  "Example callout, single-arity")
 
 ;; (callout
 ;;  {:label "FOO"}
-;;  "Example callout, with :type of :info, single-arity")
+;;  "Example callout, custom label")
 
 ;; (callout
-;;  {:label (enriched [:red-bg.white.bold " WTF "])}
-;;  (enriched [:magenta "Example callout, with :type of :info, styled-label"]))
+;;  {:label (enriched [:magenta-bg.white.bold " WTF "])}
+;;  (enriched [:magenta "Example callout, styled-label"]))
 
 ;; (callout
-;;  "Example callout again, with :type of :info")
+;;  {:type :info}
+;;  "Example callout, with :type of :info")
 
 ;; (callout
 ;;  {:type :info
 ;;   :label      "My custom label"}
 ;;  "Example callout, with :type of :info and custom :label")
 
-(callout
- {:type         :warning
-  ;; :padding-left 0
-  :padding-top 1
-  :border-weight :heavy}
- "Example callout, with :type of :warning.")
+;; (callout
+;;  {:type :positive
+;;   :border-weight :medium
+;;   }
+;;  "Example callout, with :type of :positive")
 
 ;; (callout
-;;  {:type :warning
-;;   :label "My custom label warning"}
-;;  "Example callout, with :type of :warning, and custom :label."
-;;  "\n")
-
-;; (callout
-;;  {:type :error}
-;;  "Example callout, with :type of :error")
+;;  {:type           :positive
+;;   :border-weight  :medium
+;;   :padding-left   2
+;;   :padding-top    0
+;;   :padding-bottom 1}
+;;  "Example callout, with :type of :positive, padding-bottom 1, padding-left 2.")
 
 ;; (callout
 ;;  {:type :positive
@@ -155,20 +294,45 @@
 ;;  "Example callout, with :type of :subtle (or :gray)")
 
 ;; (callout
+;;  {:type :subtle
+;;   :label "I should be gray label"}
+;;  "Example callout, with :type of :subtle (or :gray), and custom label")
+
+;; (callout
 ;;  {:type :magenta}
 ;;  "Example callout, with :type of :magenta")
 
 ;; (callout
-;;  {:type           :error
-;;   :margin-top     3 ; default is 1
-;;   :margin-bottom  3 ; default is 1
-;;   :padding-top    2 ; default is 0
-;;   :padding-bottom 2 ; default is 0
-;;   }
-;;  "Example callout, with :type of :error, and custom spacing")
+;;  {:type :error}
+;;  "Example callout, with :type of :error")
 
-;; (println "WARNING CALLOUT BELOW IS RESULT OF BAD CALL TO CALLOUT:")
-;; ;; Bad call to callout, should produce warning callout
 ;; (callout
-;;  [:red "Example malformed call to callout, default"])
+;;  {:type         :warning
+;;   }
+;;  "Example callout, with :type of :warning.")
+
+;; (callout
+;;  {:type          :warning
+;;   :border-weight :heavy
+;;   :padding-left  2}
+;;  "Example callout, with :type of :warning, padding-left of 2.")
+
+;; (callout
+;;  {:type :info
+;;   :label "My custom label warning"}
+;;  "Example callout, with :type of :warning, and custom :label." )
+
+;; (callout
+;;  {:type :warning
+;;   :label {:a :b}}
+;;  "Example callout, with :type of :warning, and custom :label." )
+
+#_(callout
+ {:type           :error
+  :margin-top     3 ; default is 1
+  :margin-bottom  3 ; default is 1
+  :padding-top    2 ; default is 0
+  :padding-bottom 2 ; default is 0
+  }
+ "Example callout, with :type of :error, and custom spacing")
 
