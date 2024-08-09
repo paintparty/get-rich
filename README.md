@@ -29,7 +29,7 @@
 
 - Simple and intuitive hiccup-like markup syntax.
 
-- Sensible templates for callouts such as errors, warnings, success, etc.
+- Sensible templates for callouts warning and error callouts.
 
 
 <br>
@@ -359,6 +359,16 @@ Example of a value of `:medium` for `:border-weight`:
 
 <p align="center"><img src="resources/error-with-point-of-interest-medium-light.png" width="750px" /></p>
 <p align="center"><img src="resources/error-with-point-of-interest-medium-dark.png" width="750px" /></p>
+
+More callout examples of `:heavy` for `:border-weight`:
+
+<p align="center"><img src="resources/callouts-heavy-light.png" width="750px" /></p>
+<p align="center"><img src="resources/callouts-heavy-dark.png"  width="750px" /></p>
+
+More callout examples of `:medium` for `:border-weight`:
+
+<p align="center"><img src="resources/callouts-medium-light.png" width="750px" /></p>
+<p align="center"><img src="resources/callouts-medium-dark.png"  width="750px" /></p>
 
 <br>
 
