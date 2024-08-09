@@ -24,15 +24,15 @@
     (callout callout-opts message)))
 
 
-;; Default callout w/ poi
-(example-custom-callout
- {:point-of-interest-opts {:file   "example.ns.core"
-                           :line   11
-                           :column 1
-                           :form   '(+ 1 true)
-                           :type   :error}
-  :callout-opts           {:type  :error
-                           :border-weight :medium}})
+;; ;; Default callout w/ poi
+;; (example-custom-callout
+;;  {:point-of-interest-opts {:file   "example.ns.core"
+;;                            :line   11
+;;                            :column 1
+;;                            :form   '(+ 1 true)
+;;                            :type   :error}
+;;   :callout-opts           {:type  :error
+;;                            :border-weight :medium}})
 
 ;; ;; Default callout w/ poi, regex-form
 ;; (example-custom-callout
@@ -265,51 +265,107 @@
 ;;  {:type :info}
 ;;  "Example callout, with :type of :info")
 
-;; (callout
-;;  {:type :info
-;;   :label      "My custom label"}
-;;  "Example callout, with :type of :info and custom :label")
 
-;; (callout
-;;  {:type :positive
-;;   :border-weight :medium
-;;   }
-;;  "Example callout, with :type of :positive")
 
-;; (callout
-;;  {:type           :positive
-;;   :border-weight  :medium
-;;   :padding-left   2
-;;   :padding-top    0
-;;   :padding-bottom 1}
-;;  "Example callout, with :type of :positive, padding-bottom 1, padding-left 2.")
+;; ;;; CALLOUT examples with light border -----------------------------------------
 
-;; (callout
-;;  {:type :positive
-;;   :label      "SUCCESS!"}
-;;   "Example callout, with :type of :positive, and custom :label")
+;; (callout {:type :info}
+;;          "Example callout, with :type of :info")
 
-;; (callout
-;;  {:type :subtle}
-;;  "Example callout, with :type of :subtle (or :gray)")
+;; (callout {:type  :info
+;;           :label "My custom label"}
+;;          "Example callout, with :type of :info and custom :label")
 
-;; (callout
-;;  {:type :subtle
-;;   :label "I should be gray label"}
-;;  "Example callout, with :type of :subtle (or :gray), and custom label")
+;; (callout {:type :warning}
+;;          "Example callout, with :type of :warning")
 
-;; (callout
-;;  {:type :magenta}
-;;  "Example callout, with :type of :magenta")
+;; (callout {:type :error}
+;;          "Example callout, with :type of :error")
 
-;; (callout
-;;  {:type :error}
-;;  "Example callout, with :type of :error")
+;; (callout {:type  :positive
+;;           :label "SUCCESS!"}
+;;          "Example callout, with :type of :positive, and custom :label")
 
-;; (callout
-;;  {:type         :warning
-;;   }
-;;  "Example callout, with :type of :warning.")
+;; (callout {:type :subtle}
+;;          "Example callout, with :type of :subtle (or :gray)")
+
+;; (callout {:type :magenta}
+;;          "Example callout, with :type of :magenta")
+
+;; (callout "Example callout, default")
+
+
+
+;;; CALLOUT examples with medium border ----------------------------------------
+
+(callout {:type          :info
+          :border-weight :medium}
+         "Example callout, with :type of :info")
+
+;; (callout {:type          :info
+;;           :border-weight :medium
+;;           :label         "My custom label"}
+;;          "Example callout, with :type of :info and custom :label")
+
+(callout {:type          :warning
+          :border-weight :medium}
+         "Example callout, with :type of :warning")
+
+(callout {:type :error
+          :border-weight :medium}
+         "Example callout, with :type of :error")
+
+(callout {:type          :positive
+          :label         "SUCCESS!"
+          :border-weight :medium}
+         "Example callout, with :type of :positive, and custom :label")
+
+(callout {:type          :subtle
+          :border-weight :medium}
+         "Example callout, with :type of :subtle (or :gray)")
+
+(callout {:type          :magenta
+          :border-weight :medium}
+         "Example callout, with :type of :magenta")
+
+(callout {:border-weight :medium} "Example callout, default")
+
+
+
+;;; CALLOUT examples with heavy border ----------------------------------------
+
+(callout {:type          :info
+          :border-weight :heavy}
+         "Example callout, with :type of :info")
+
+;; (callout {:type          :info
+;;           :border-weight :heavy
+;;           :label         "My custom label"}
+;;          "Example callout, with :type of :info and custom :label")
+
+(callout {:type          :warning
+          :border-weight :heavy}
+         "Example callout, with :type of :warning")
+
+(callout {:type :error
+          :border-weight :heavy}
+         "Example callout, with :type of :error")
+
+(callout {:type          :positive
+          :label         "SUCCESS!"
+          :border-weight :heavy}
+         "Example callout, with :type of :positive, and custom :label")
+
+(callout {:type          :subtle
+          :border-weight :heavy}
+         "Example callout, with :type of :subtle (or :gray)")
+
+(callout {:type          :magenta
+          :border-weight :heavy}
+         "Example callout, with :type of :magenta")
+
+(callout {:border-weight :heavy} "Example callout, default")
+
 
 ;; (callout
 ;;  {:type          :warning

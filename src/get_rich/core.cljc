@@ -572,7 +572,9 @@
         light-border-style {:font-weight :bold
                             :color       color}
         label-opts         light-border-style
-        thick-border-style {:background-color color
+        thick-border-style {:background-color (if (= "neutral" color)
+                                                "gray"
+                                                color)
                             :color            :white
                             :font-weight      :bold}
         border-style       (if light-border? 
@@ -618,7 +620,6 @@
                        (enriched [light-border-style
                                   (str "┗" hrz-edge)])))))
              (char-repeat margin-bottom "\n"))]
-
     (if (true? data?)
       callout-str
       (println callout-str))))
@@ -825,7 +826,7 @@
                           :label          label
                           :callout-type   callout-type
                           :border-weight  border-weight
-                          :pt    pt
+                          :pt             pt
                           :padding-bottom padding-bottom
                           :padding-left   padding-left
                           :margin-top     margin-top
