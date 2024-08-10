@@ -130,7 +130,7 @@
                                 "\033[0;m")))
   s)
 
-(defn ^:public ?sgr
+(defn ^:public !?sgr
   "Temporarily silences debugging of sgr code printing.
    Returns the value."
   [s]
@@ -341,7 +341,7 @@
   "Creates a user-friendly stack-trace preview, limited to the frames which
    contain a match with the supplied regex, up to the `depth` value, if supplied.
    `depth` defaults to 7."
-  [{:keys [error regex depth]}]
+  [{:keys [error regex depth header]}]
   #?(:clj
      (if-let [strace (some->> (maybe error #(instance? Exception %))
                               .getStackTrace
@@ -374,7 +374,8 @@
              trace*      (when last-index
                            (->> mini-strace (take (inc last-index))))
              len         (when trace* (count trace*)) 
-             trace       (some->> trace* (interpose "\n") (into []))
+             with-header [(or header "Stacktrace preview:") "\n"]
+             trace       (some->> trace* (interpose "\n") (into with-header))
              num-dropped (when trace 
                            (let [n (- (or strace-len 0) (or len 0))]
                              (some->> (maybe n pos-int?)
@@ -382,8 +383,11 @@
 
              ;; Conj num-dropped annotation to mini-strace
              trace       (some-> trace (conj num-dropped))]
+
          ;; Create and return multiline string
          (apply str trace))
+
+       ;; Print a warning if option args are bad
        (callout {:type :warning}
                 (enriched 
                  "get-rich.core/stack-trace-preview\n\n"
@@ -449,9 +453,9 @@
   #?(:cljs
      (if (instance? Enriched o)
        (goog.object/get o "args")
-       (some->> o (into [])))
+       (when o [o]))
      :clj
-     (some->> o (into []))))
+     (when o [o])))
 
 (defn ^:public point-of-interest
   "A namespace info diagram which identifies a specific form. This provides the
@@ -474,8 +478,8 @@
 | `:column`       | `integer?`             | Column number                                                |
 | `:form`         | `any?`                 | The form to draw attention to. Will be cast to string and truncated at 33 chars |
 | `:type`         | `keyword` or `string?` | Controls the color of the squiggly underline. Should be one of: `:error` `:warning`, or `:neutral`. Defaults to `:neutral` |
-| `:header`       | `any?`                 | Typically, a string composed with newlines as desired. In a browser context, can be an instance of `get-rich.core/Enriched` (produced by using `get-rich.core/enriched`)|
-| `:body`         | `any?`                 | Typically, a string composed with newlines as desired. In a browser context, can be an instance of `get-rich.core/Enriched` (produced by using `get-rich.core/enriched`)|
+| `:header`       | `any?`                 | Typically, a string. If multi-line, string should be composed with newlines as desired. In a browser context, can be an instance of `get-rich.core/Enriched` (produced by using `get-rich.core/enriched`)|
+| `:body`         | `any?`                 | Typically, a string. If multi-line, string should be composed with newlines as desired. In a browser context, can be an instance of `get-rich.core/Enriched` (produced by using `get-rich.core/enriched`)|
 | `:margin-block` | `int?`                 | Controls the number of blank lines above and below the diagram.<br/>Defaults to 1.|
 "
 
