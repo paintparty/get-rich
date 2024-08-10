@@ -113,8 +113,13 @@
 
 ;; Helper functions -----------------------------------------------------------
 
-(defn- ?sgr
-  "For debugging of sgr code printing"
+(defn ^:public ?sgr
+  "For debugging of sgr code printing.
+
+   Prints the value with escaped sgr codes so you can read them in terminal
+   emulators (otherwise text would just get colored).
+
+   Returns the value."
   [s]
   (println (string/replace s
                            #"\u001b\[([0-9;]*)[mK]"
@@ -125,8 +130,9 @@
                                 "\033[0;m")))
   s)
 
-(defn- !?sgr
-  "Temporarily silence debugging of sgr code printing"
+(defn ^:public ?sgr
+  "Temporarily silences debugging of sgr code printing.
+   Returns the value."
   [s]
   s)
 
