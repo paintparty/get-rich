@@ -1,24 +1,42 @@
-# Change Log
-All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
+# Changelog
+[get-rich](https://github.com/paintparty/get-rich): Helps you quickly get rich text into your console printing. 
 
-## [Unreleased]
-### Changed
-- Add a new arity to `make-widget-async` to provide a different widget shape.
 
-## [0.1.1] - 2024-07-14
-### Changed
-- Documentation on how to make the widgets.
 
-### Removed
-- `make-widget-sync` - we're all async, all the time.
+For a list of breaking changes, check [here](#breaking-changes)
 
-### Fixed
-- Fixed widget maker to keep working when daylight savings switches over.
 
-## 0.1.0 - 2024-07-14
-### Added
-- Files from the new template.
-- Widget maker public API - `make-widget-sync`.
+## Unreleased
+#### Added
+- `get-rich.core/stack-trace-preview`
+- `get-rich.core/safe-println`
+- `get-rich.core/?sgr` and `get-rich.core/!?sgr`, for debugging.
+- `:data?` and `:padding-left?` option to `get-rich.core/callout`.
 
-[Unreleased]: https://sourcehost.site/your-name/get-rich/compare/0.1.1...HEAD
-[0.1.1]: https://sourcehost.site/your-name/get-rich/compare/0.1.0...0.1.1
+#### Changed
+- `:border-weight` option to `get-rich.core/callout` now expects one of the following:
+  - `:thin` (default)
+  - `:medium`
+  - `:heavy`
+
+#### Fixed
+- 2-arity version of `?trace` macro false warnings.
+
+#### Removed
+- Removed :purple from built-in pallette.
+
+<br>
+<br>
+
+## 0.2.0
+2024-07-24
+
+### Initial Release
+
+<br>
+<br>
+
+## Breaking changes
+
+### 0.3.0
+
