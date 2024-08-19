@@ -41,7 +41,7 @@ Add as a dependency to your project:
 
 
 ```Clojure
-[io.github.paintparty/get-rich "0.1.0"]
+[io.github.paintparty/get-rich "0.2.0"]
 ```
 <br>
 
@@ -257,7 +257,7 @@ The above calls would render the following in your favorite terminal emulator:
 | `:label`          | `any?`                  | Labels the callout. In a terminal emulator context, the value will be cast to a string. In a browser context, the label can be an instance of `get-rich.core/Enriched`, or any other value (which will be cast to a string). <br>In the case of a callout `:type` of `:warning`, `:error`, or `:info`, the value of the label will default to \"WARNING\", \"ERROR\", or \"INFO\", respectively. |
 | `:type`           | `keyword?` or `string?` | Controls the color of the border and label.<br />Should be one of: `:error`,  `:warning` , `:info` , `:positive`, or `:subtle`. <br>Can also be any one of the pallete colors such as  `:magenta`, `:green`,  `:negative`, `:neutral`, etc. |
 | `:border-weight`  | `keyword?` or `string?` | Controls the weight of the border. Can be one of `:medium`, `:heavy`, or `:light`. Defaults to `:light`, which renders default border with standard unicode, single-line box-drawing character. |
-| `:padding-top`    | `int?`                  | Amout of padding (in lines) at top of callout (inside callout block).<br/>Defaults to 0. |
+| :padding&#x2011top    | `int?`                  | Amout of padding (in lines) at top of callout (inside callout block).<br/>Defaults to 0. |
 | `:padding-bottom` | `int?`                  | Amout of padding (in lines) at bottom of callout (inside callout block).<br>Defaults to 0. In browser console, defaults to `1` in the case of callouts of type `:warning` or `:error`.|
 | `:padding-left`   | `int?`                  | Amout of padding (in lines) at left of callout (inside callout block).<br>In console emulator, defaults to `1` when `:border-weight` is `:light`, and `2` when `:border-weight` is `:medium` or `:heavy`. In browser console, defaults to `0`.|
 | `:margin-top`     | `int?`                  | Amout of margin (in lines) at top of callout (outside callout block).<br>Defaults to `1`. Only applies to terminal emulator printing. |

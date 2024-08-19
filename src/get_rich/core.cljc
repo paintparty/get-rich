@@ -535,12 +535,16 @@
 
 (defn with-label-and-border 
   [{:keys [label
+           border-weight
            border-style
            border-left-str
            pt
            padding-bottom
            padding-left-str
-           value]}
+           margin-left-str
+           margin-top-str
+           value]
+    :as m}
    label-line]
   (let [pt-and-value             
         (str (when label "\n")
@@ -550,18 +554,45 @@
         newlines?                         
         (re-find #"\n" pt-and-value)
 
-        pt-and-value-with-border 
+        pt-and-value-with-border*
         (string/replace 
          (if (or (not label)
                  (not newlines?))
            (str "\n" pt-and-value)
            pt-and-value)
          #"\n"
-         (str "\n" (enriched [border-style
-                              border-left-str]
-                             padding-left-str)))
+         (str "\n"
+              margin-left-str
+              (enriched [border-style
+                         border-left-str]
+                        padding-left-str)))
+
+        ;; In the case of medium or heavy border,
+        ;; with newlines and but no label,
+        ;; we need to remove the leading space character.
+        pt-and-value-with-border
+        (if (or (and newlines?
+                     (not label)
+                     (not= border-weight "light"))
+                (and #_(nil? margin-top-str)
+                     (not label)
+                     (not= border-weight "light")))
+          (string/replace pt-and-value-with-border* #"^\n" "")
+          pt-and-value-with-border*)
+
         pb
         (spacing padding-bottom 0)]
+
+    #_(when (:data? m)
+      (prn 'pt-and-value pt-and-value)
+      (prn 'newlines? newlines?)
+      (prn 'pt-and-value-with-border pt-and-value-with-border)
+      (prn 'pb pb))
+
+    ;; (prn 'pt pt-and-value)
+    ;; (prn 'pt-and-value-with-border* pt-and-value-with-border*)
+    ;; (prn 'pt-and-value-with-border pt-and-value-with-border)
+
     (str
      label-line
      pt-and-value-with-border
@@ -575,6 +606,7 @@
            padding-left
            margin-top
            margin-bottom
+           margin-left
            data?
            color]
     :as m}]
@@ -595,44 +627,60 @@
                              "medium"  " "
                              "heavy"   "  ")
         padding-left       (spacing padding-left
-                                            (if light-border? 1 2))
+                                    (if light-border? 1 2))
         padding-left-str   (char-repeat padding-left " ")
+        margin-left-str    (char-repeat margin-left " ")
+        margin-top-str     (char-repeat margin-top "\n")
         opts*              (merge m
-                                  {:label-opts       label-opts  
+                                  {:label-opts       label-opts
                                    :border-style     border-style  
                                    :border-left-str  border-left-str
-                                   :padding-left-str padding-left-str})
+                                   :padding-left-str padding-left-str
+                                   :margin-left-str  margin-left-str
+                                   :margin-top-str   margin-top-str})
         callout-str        
-        (str (char-repeat margin-top "\n")
+        (str margin-top-str
              (if (contains? #{"heavy" "medium"} border-weight)
 
                ;; heavy style border
                (let [label-line                       
                      (when label
                        (enriched 
-                        [label-opts (case border-weight
-                                      "medium"  "▆"
-                                      "heavy"   "▆▆")]
+                        margin-left-str
+                        [border-style (case border-weight
+                                        "medium"  " "
+                                        "heavy"   "  ")]
                         padding-left-str
-                        [label-opts (str label)]))]
-                 (with-label-and-border opts* label-line))
+                        [label-opts (str label)]))
+                     
+                     w-label
+                     (with-label-and-border opts* label-line)]
+                 #_(prn w-label)
+                 w-label)
 
                ;; light border
                (let [hrz-edge   (char-repeat (max 0 (dec padding-left))
                                              "━")
                      label-line (enriched [light-border-style
-                                           (str "┏"
+                                           (str margin-left-str
+                                                "┏"
                                                 hrz-edge
                                                 (some->> label (str " ")))])]
                  (str
                   (with-label-and-border opts* label-line)
                   (str "\n"
                        (enriched [light-border-style
-                                  (str "┗" hrz-edge)])))))
+                                  (str margin-left-str
+                                       "┗"
+                                       hrz-edge)])))))
              (char-repeat margin-bottom "\n"))]
     (if (true? data?)
-      callout-str
+      (do
+        ;; (prn 'callout-str callout-str)
+        ;; (prn 'margin-top-str margin-top-str)
+        callout-str)
       (println callout-str))))
+
 
 #?(:cljs
 (defn browser-callout
@@ -773,31 +821,29 @@
 | `:label`          | `any?`                  | Labels the callout. In a terminal emulator context, the value will be cast to a string. In a browser context, the label can be an instance of `get-rich.core/Enriched`, or any other value (which will be cast to a string). <br>In the case of a callout `:type` of `:warning`, `:error`, or `:info`, the value of the label will default to \"WARNING\", \"ERROR\", or \"INFO\", respectively. |
 | `:type`           | `keyword?` or `string?` | Controls the color of the border and label.<br />Should be one of: `:error`,  `:warning` , `:info` , `:positive`, or `:subtle`. <br>Can also be any one of the pallete colors such as  `:magenta`, `:green`,  `:negative`, `:neutral`, etc. |
 | `:border-weight`  | `keyword?` or `string?` | Controls the weight of the border. Can be one of `:medium`, `:heavy`, or `:light`. Defaults to `:light`, which renders default border with standard unicode, single-line box-drawing character. |
-| `:padding-top`    | `int?`                  | Amout of padding (in lines) at top of callout (inside callout block).<br/>Defaults to 0. |
-| `:padding-bottom` | `int?`                  | Amout of padding (in lines) at bottom of callout (inside callout block).<br>Defaults to 0. In browser console, defaults to `1` in the case of callouts of type `:warning` or `:error`.|
-| `:padding-left`   | `int?`                  | Amout of padding (in lines) at left of callout (inside callout block).<br>In console emulator, defaults to `1` when `:border-weight` is `:light`, and `2` when `:border-weight` is `:medium` or `:heavy`. In browser console, defaults to `0`.|
-| `:margin-top`     | `int?`                  | Amout of margin (in lines) at top of callout (outside callout block).<br>Defaults to `1`. Only applies to terminal emulator printing. |
-| `:margin-bottom`  | `int?`                  | Amout of margin (in lines) at bottom of callout (outside callout block).<br>Defaults to `0`. Only applies to terminal emulator printing. |
+| `:padding-top`    | `int?`                  | Amount of padding (in lines) at top of callout (inside callout block).<br/>Defaults to 0. |
+| `:padding-bottom` | `int?`                  | Amount of padding (in lines) at bottom of callout (inside callout block).<br>Defaults to 0. In browser console, defaults to `1` in the case of callouts of type `:warning` or `:error`.|
+| `:padding-left`   | `int?`                  | Amount of padding (in lines) at left of callout (inside callout block).<br>In console emulator, defaults to `1` when `:border-weight` is `:light`, and `2` when `:border-weight` is `:medium` or `:heavy`. In browser console, defaults to `0`.|
+| `:margin-top`     | `int?`                  | Amount of margin (in lines) at top of callout (outside callout block).<br>Defaults to `1`. Only applies to terminal emulator printing. |
+| `:margin-bottom`  | `int?`                  | Amount of margin (in lines) at bottom of callout (outside callout block).<br>Defaults to `0`. Only applies to terminal emulator printing. |
+| `:margin-left`    | `int?`                  | Amount of margin (in lines) at left of callout (outside callout block).<br>Defaults to `0`. Only applies to terminal emulator printing. |
 | `:data?`          | `boolean?`              | Returns a data representation of result instead of printing it. |
 "
 
-
-
   ([value]
    (callout {} value))
-  ([{:keys [
-            label
+  ([{:keys [label
             wrap?
             data?
             border-weight
             margin-top
             margin-bottom
+            margin-left
             padding-top
             padding-bottom
             padding-left]
      :as   opts}
     value]
-
    (if-not (map? opts)
      (callout
       {:type :warning
@@ -810,28 +856,29 @@
         :body   (str "get-rich-core/callout expects a map of options,\n"
                      "followed by any number of values (usually strings).\n\n"
                      "Nothing will be printed.")}))
-     (let [pt    (spacing padding-top 0)
-           margin-top     (spacing margin-top 1)
-           margin-bottom  (spacing margin-bottom 0)
-           callout-type   (callout-type opts)
-           color          (or callout-type "neutral")
-           border-weight  (or (some-> border-weight
-                                      (maybe #{:light
-                                               "light"
-                                               :heavy
-                                               "heavy"
-                                               :medium
-                                               "medium"})
-                                      name)
-                              "light")
-           wrap?          (true? wrap?)
-           label          (if (and (string? label)
-                                   (string/blank? label))
-                            nil
-                            (or label
-                                (get alert-type->label
-                                     callout-type
-                                     nil)))
+     (let [pt            (spacing padding-top 0)
+           margin-top    (spacing margin-top 1)
+           margin-bottom (spacing margin-bottom 0)
+           margin-left   (spacing margin-left 0)
+           callout-type  (callout-type opts)
+           color         (or callout-type "neutral")
+           border-weight (or (some-> border-weight
+                                     (maybe #{:light
+                                              "light"
+                                              :heavy
+                                              "heavy"
+                                              :medium
+                                              "medium"})
+                                     name)
+                             "light")
+           wrap?         (true? wrap?)
+           label         (if (and (string? label)
+                                  (string/blank? label))
+                           nil
+                           (or label
+                               (get alert-type->label
+                                    callout-type
+                                    nil)))
            callout-opts  {:value          value
                           :label          label
                           :callout-type   callout-type
@@ -841,10 +888,11 @@
                           :padding-left   padding-left
                           :margin-top     margin-top
                           :margin-bottom  margin-bottom
+                          :margin-left    margin-left
                           :data?          data?
                           :color          color}]
 
-
+      ;;  (pprint callout-opts)
        #?(:cljs
           ;; move to enriched or data
           (browser-callout callout-opts)
